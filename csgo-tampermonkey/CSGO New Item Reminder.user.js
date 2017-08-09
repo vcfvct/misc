@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO New Item Reminder
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  Auto Refresh page if no item is changed in the page. When new item appears, there will be Desktop notification as well as info banner for reminding.
 // @author       Han Li
 // @require      https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser-polyfill.min.js
@@ -25,33 +25,32 @@ var inline_src = (<><![CDATA[
 	let pageTitle = $(document).find("title").text();
 	let itemNumber = parseInt($('#searchResults_total').text().replace(/,/g,''));
 	let previousItemNumber = parseInt(sessionStorage.getItem(pageTitle));
+	//set new Item number to session storage so even when item count descrease, we still get covered on next refresh.
+	sessionStorage.setItem(pageTitle, itemNumber);
 
 	const refreshKey = pageTitle + '-refresh';
 	let refreshing = JSON.parse(sessionStorage.getItem(refreshKey));
 	console.log(`page loaded: prev: '${previousItemNumber}' current: '${itemNumber}'. time: ${new Date()}`);
 
-	if (isNaN(previousItemNumber)) {
+	if (refreshing && itemNumber > previousItemNumber) {
+	    refreshing = false;
+	    sessionStorage.setItem(refreshKey, refreshing);
 	    sessionStorage.setItem(pageTitle, itemNumber);
-	} else {
-	    if (refreshing && itemNumber > previousItemNumber) {
-	        refreshing = false;
-	        sessionStorage.setItem(refreshKey, refreshing);
-	        sessionStorage.setItem(pageTitle, itemNumber);
-	        const msg = `Item increased from ${previousItemNumber} to ${itemNumber}. `;
-	        var notificationDetails = {
-	            text: msg,
-	            title: 'Refresh Stopped, press the Button to resume refresh',
-	            timeout: 10000,
-	            onclick: function() {
-	                console.log("Notice clicked.");
-	                window.focus();
-	            }
-	        };
-	        GM_notification(notificationDetails);
-	        let infoBanner = $(`<div id='info-banner'><h1>${msg}</h1></div>`);
-	        $('body').prepend(infoBanner);
-	    }
+	    const msg = `Item increased from ${previousItemNumber} to ${itemNumber}. `;
+	    var notificationDetails = {
+	        text: msg,
+	        title: 'Refresh Stopped, press the Button to resume refresh',
+	        timeout: 10000,
+	        onclick: function() {
+	            console.log("Notice clicked.");
+	            window.focus();
+	        }
+	    };
+	    GM_notification(notificationDetails);
+	    let infoBanner = $(`<div id='info-banner'><h1>${msg}</h1></div>`);
+	    $('body').prepend(infoBanner);
 	}
+
 
 	let buttonText = getNextButtonState(refreshing);
 	let refreshButton = $(`<input type="button" id="refresh-button" value="${buttonText}"/>`);
