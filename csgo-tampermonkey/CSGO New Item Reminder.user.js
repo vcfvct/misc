@@ -7,7 +7,8 @@
 // @require      https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser-polyfill.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js
-// @include      https://steamcommunity.com/market/listings*
+// @include      https://steamcommunity.com/market/listings/730/*
+// @include      http://steamcommunity.com/market/listings/730/*
 // @grant GM_addStyle
 // @grant GM_notification
 // ==/UserScript==
@@ -74,7 +75,7 @@ var inline_src = (<><![CDATA[
 	                location.reload();
 	            }
 	        },
-	        31 * 1000
+	        61 * 1000
 	    );
 	}
 
