@@ -64,6 +64,7 @@ var inline_src = (<><![CDATA[
 			refreshButton.on('click', () => {
 			    refreshing = !refreshing;
 			    refreshButton.prop('value', getNextButtonState(refreshing));
+			    refreshButton.css("background-color", getNextButtonBg(refreshing));
 			    sessionStorage.setItem(refreshKey, refreshing);
 			    if (refreshing) {
 			        location.reload();
