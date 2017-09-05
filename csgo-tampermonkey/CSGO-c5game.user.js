@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO New Price Reminder in C5Game
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Auto Refresh page if no new price in the page. When new price appears, there will be Desktop notification as well as info banner for reminding.
 // @author       Han Li
 // @require      https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser-polyfill.min.js
@@ -37,11 +37,11 @@ var inline_src = (<><![CDATA[
 			let refreshing = JSON.parse(sessionStorage.getItem(refreshKey));
 			console.log(`page loaded: prev: '${previousPrice}' current: '${curPrice}'. time: ${new Date()}`);
 
-			if (refreshing && curPrice > previousPrice) {
+			if (refreshing && curPrice !== previousPrice) {
 			    refreshing = false;
 			    sessionStorage.setItem(refreshKey, refreshing);
 			    sessionStorage.setItem(pageTitle, curPrice);
-			    const msg = `Item increased from ${previousPrice} to '${curPrice}.' `;
+			    const msg = `Top pirce changed from ${previousPrice} to '${curPrice}.' `;
 			    var notificationDetails = {
 			        text: msg,
 			        title: 'Refresh Stopped, press the Button to resume refresh',
@@ -58,7 +58,8 @@ var inline_src = (<><![CDATA[
 
 
 			let buttonText = getNextButtonState(refreshing);
-			let refreshButton = $(`<input type="button" id="refresh-button" value="${buttonText}"/>`);
+			let buttonBgColor = getNextButtonBg(refreshing);
+			let refreshButton = $(`<input type="button" style="background-color: ${buttonBgColor}"id="refresh-button" value="${buttonText}"/>`);
 
 			refreshButton.on('click', () => {
 			    refreshing = !refreshing;
@@ -86,7 +87,10 @@ var inline_src = (<><![CDATA[
 			$('body').append(refreshButton);
 
 			function getNextButtonState(refreshing) {
-			    return refreshing ? 'Stop Refresh' : 'Start Refresh';
+			    return refreshing ? '停止刷新' : '开始刷新';
+			}
+			function getNextButtonBg(refreshing) {
+			    return refreshing ? '#55E' : '#268829';
 			}
 		}, WAIT_FOR_XHR*1000);
 	}
