@@ -61,15 +61,17 @@ var inline_src = (<><![CDATA[
 
 			let buttonText = getNextButtonState(refreshing);
 			let buttonBgColor = getNextButtonBg(refreshing);
-			let refreshButton = $(`<input type="button" style="background-color: ${buttonBgColor}"id="refresh-button" value="${buttonText}"/>`);
+			let refreshButton = $(`<input type="button" style="background-color: ${buttonBgColor}" id="refresh-button" value="${buttonText}"/>`);
 
 			refreshButton.on('click', () => {
-			    refreshing = !refreshing;
-			    refreshButton.prop('value', getNextButtonState(refreshing));
-			    refreshButton.css("background-color", getNextButtonBg(refreshing));
+			    refreshing = !refreshing;   
 			    sessionStorage.setItem(refreshKey, refreshing);
 			    if (refreshing) {
 			        location.reload();
+			    }else{
+			    	let button = $('#refresh-button');
+			   		button.prop('value', getNextButtonState(refreshing));
+			   		button.css("background-color", getNextButtonBg(refreshing));
 			    }
 			    console.log(`after button click: ${refreshing}`);
 
