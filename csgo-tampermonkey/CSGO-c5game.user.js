@@ -26,7 +26,7 @@ var inline_src = (<><![CDATA[
     if(isPurchasePage){
     	const CHECK_INTERVAL = 1;
     	let waitData = setInterval(() => {
-    	  if($('.sale-item-table').length){
+    	  if($('.sale-item-table tbody:nth-child(2) tr:first td.item-name').length){
     	  	clearInterval(waitData);
 
     	  	let pageTitle = $(document).find("title").text();
