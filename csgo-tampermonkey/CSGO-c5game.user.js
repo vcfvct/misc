@@ -24,10 +24,12 @@ var inline_src = (<><![CDATA[
     //we are only interested in purchase page. 
     let isPurchasePage = document.URL.includes('&type=P');
     if(isPurchasePage){
-	    // time time in second we wait for page to fully loaded with all the xhr fullfilled where the table data is originated from. 
-	    const WAIT_FOR_XHR = 2;
-		setTimeout(()=>{
-			let pageTitle = $(document).find("title").text();
+    	const CHECK_INTERVAL = 1;
+    	let waitData = setInterval(() => {
+    	  if($('.sale-item-table').length){
+    	  	clearInterval(waitData);
+
+    	  	let pageTitle = $(document).find("title").text();
 			let curPrice = parseFloat($('.sale-item-table tbody:nth-child(2) tr:first td:nth-child(4) span').text().substring(1));
 			let previousPrice = parseFloat(sessionStorage.getItem(pageTitle));
 			//set new price to session storage so even when item count descrease, we still get covered on next refresh.
@@ -94,7 +96,10 @@ var inline_src = (<><![CDATA[
 			function getNextButtonBg(refreshing) {
 			    return refreshing ? '#55E' : '#268829';
 			}
-		}, WAIT_FOR_XHR*1000);
+    	  }else{
+    	  	console.log(`Wait for another ${CHECK_INTERVAL} second[s] to load data`);
+    	  }	
+    	},CHECK_INTERVAL * 1000);
 	}
 
 /* jshint ignore:start */
