@@ -20,7 +20,7 @@ var inline_src = (<><![CDATA[
 // Your code here...
 
 	GM_addStyle('#refresh-button {width: 100px; color: #FFF; border-radius: 6px;}');
-	GM_addStyle('#info-banner {position: fixed; top: 0; height: 40px; width: 100%;  background-color: yellow; color: black; border-radius: 6px; font-size: 2em!important; text-align:center; z-index: 403;}');
+	GM_addStyle('#info-banner {position: fixed; top: 0; height: 40px; width: 100%;  background-color: yellow; color: black; border-radius: 6px; font-size: 2em!important; text-align:center; z-index: 1000;}');
     //we are only interested in purchase page. 
     let isPurchasePage = document.URL.includes('&type=P');
     if(isPurchasePage){
@@ -54,7 +54,7 @@ var inline_src = (<><![CDATA[
 			        }
 			    };
 			    GM_notification(notificationDetails);
-			    let infoBanner = $(`<div id='info-banner'><h1>${msg}</h1></div>`);
+			    let infoBanner = $(`<div id='info-banner'><p>${msg}</p></div>`);
 			    $('body').prepend(infoBanner);
 			}
 
