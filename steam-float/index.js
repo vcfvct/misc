@@ -37,20 +37,11 @@ setInterval(() => {
     }
 }, 2000);
 
-// function scan() {
-//     if (roundDone) {
-//     	getItems();
-//     }
-//     setTimeout(() => {scan()},
-//             2000);
-// }
-// scan();
-
 
 function handleList(newList, lastList) {
     console.log(`${new Date()},拿到新的列表，共有${newList.total_count}个物品。`);
-    let newItems = getNewItems(newList, lastList);
-    lastList = newList;
+    let newItems = getNewItems(newList.listinginfo, lastList);
+    lastList = newList.listinginfo;
     if (newItems.length) {
         let getFloatPromise = floatClient.requestFloat(getFloatQueryString(getInGameUrl(newItems[0])));
         if (newItems.length === 1) {
@@ -97,9 +88,10 @@ function isGoodItem(price, float) {
 
 function getNewItems(newList, oldList) {
     let newListIds = Object.keys(newList);
+    let oldListIds = oldList ? Object.keys(oldList) : [];
     // for first time, no new item, return empty
     return !oldList ? [] : newListIds.filter((id) => {
-        return !oldList.includes(id);
+        return !oldListIds.includes(id);
     });
 }
 

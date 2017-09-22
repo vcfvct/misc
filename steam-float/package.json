@@ -11,6 +11,7 @@
   "dependencies": {
     "axios": "^0.16.2",
     "csgo": "^1.5.7",
-    "csgo-float": "^0.2.0"
+    "csgo-float": "^0.2.0",
+    "sendmail": "^1.2.0"
   }
 }
