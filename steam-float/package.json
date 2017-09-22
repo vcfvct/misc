@@ -1,0 +1,16 @@
+{
+  "name": "steam-float",
+  "version": "1.0.0",
+  "description": "get float value from steam (csgo)",
+  "main": "index.js",
+  "author": "Han Li",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "axios": "^0.16.2",
+    "csgo": "^1.5.7",
+    "csgo-float": "^0.2.0"
+  }
+}
