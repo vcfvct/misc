@@ -7,70 +7,62 @@ const config = require('./config');
 
 let clientReady = false,
     roundDone = true;
-let lastList, floatClient;
+let lastList;
+let args = process.argv.slice(2);
+let debug = args[0];
+
 
 async function getItems() {
     roundDone = false;
     let url = `http://steamcommunity.com/market/listings/730/${config.itemHash}/render?start=0&count=20&currency=23&language=english`;
     try {
         let res = await axios.get(url);
-        if (clientReady) {
-            handleList(res.data, lastList);
-        } else {
-            let waitClient = setInterval(() => {
-                if (clientReady) {
-                    clearInterval(waitClient);
-                    handleList(res.data, lastList);
-                }
-            }, 1000);
-        }
+        handleList(res.data, lastList);
+
     } catch (e) {
         console.log(e);
         roundDone = true;
     }
 };
 
-setInterval(() => {
-    console.log(`${new Date()},开始新一轮scan`);
-    if (roundDone) {
-        getItems();
-    }
-}, 2000);
+
+async function handleNewItem(itemInfo) {
+    let queryUrl = getQueryUrl(item);
+    let floatRes = await axios.get(queryUrl);
+    console.log(floatRes.data);
+    console.log(getPrice(itemInfo));
+}
 
 
 function handleList(newList, lastList) {
-    console.log(`${new Date()},拿到新的列表，共有${newList.total_count}个物品。`);
-    let newItems = getNewItems(newList.listinginfo, lastList);
-    lastList = newList.listinginfo;
-    if (newItems.length) {
-        let getFloatPromise = floatClient.requestFloat(getFloatQueryString(getInGameUrl(newItems[0])));
-        if (newItems.length === 1) {
-            let price = getPrice(newItems[0]);
-            getFloatPromise.then((float) => {
-                handleItem(price, float);
-                roundDone = true;
-            })
-        } else {
-            for (let i = 1; i < newItems.length; i++) {
-                (function() {
-                    let thisItem = newItems[i];
-                    let price = getPrice(thisItem);
-                    let newGetFloat = () => floatClient.requestFloat(getFloatQueryString(getInGameUrl(thisItem)));
-                    getFloatPromise = getFloatPromise.then(float => {
-                        handleItem(price, float);
-                        if (i === newItems.length - 1) {
-                            roundDone = true;
-                        } else {
-                            return newGetFloat();
-                        }
-                    });
-                })(i)
-            }
-        }
-    } else {
-        console.log('没有新物品！');
-        roundDone = true;
+    if (debug) {
+        console.log(`${new Date()},拿到新的列表，共有${newList.total_count}个物品。`);
     }
+    let newItems = getNewItems(newList.listinginfo, lastList);
+    // let newItems = newList.listinginfo;
+    lastList = newList.listinginfo;
+
+    // axios.get(getQueryUrl(Object.values(newItems)[0])).then((float) => console.log(float.data));
+    newLists = Object.values(newItems);
+    let promises = newLists.map((item) => {
+        let queryUrl = getQueryUrl(item);
+        console.log(queryUrl);
+        return axios.get(queryUrl);
+    });
+
+    Promise.all(promises)
+        .then((floats) => {
+            roundDone = true;
+            floats.forEach((floatObj, index) => {
+                let price = getPrice(newLists[index]);
+                let float = floatObj.data.iteminfo.floatvalue;
+                handleItem(price, float);
+            });
+        })
+        .catch((err) => {
+            roundDone = true;
+            console.err(err);
+        });
 
 }
 
@@ -87,50 +79,39 @@ function isGoodItem(price, float) {
 }
 
 function getNewItems(newList, oldList) {
+    let result = [];
     let newListIds = Object.keys(newList);
-    let oldListIds = oldList ? Object.keys(oldList) : [];
-    // for first time, no new item, return empty
-    return !oldList ? [] : newListIds.filter((id) => {
-        return !oldListIds.includes(id);
-    });
+    if (oldList) {
+        let oldListIds = Object.keys(oldList);
+        oldListIds.forEach((oldId) => {
+            if (!newList[oldId]) {
+                result.push(newList[oldId]);
+            }
+        });
+    }
+    return result;
 }
 
-function getInGameUrl(itemInfo) {
+function getQueryUrl(itemInfo) {
     let linkTemplate = itemInfo.asset.market_actions[0].link;
-    let assetId = itemInfo.asset.id;
-    return linkTemplate.replace('%listingid%', itemInfo.listingid).replace('%assetid%', assetId);
+    let indexOfD = linkTemplate.lastIndexOf('D');
+    let paramD = linkTemplate.substring(indexOfD + 1);
+    let paramA = itemInfo.asset.id;
+    let paramM = itemInfo.listingid;
+    return `https://api.csgofloat.com:1738/?m=${paramM}&a=${paramA}&d=${paramD}`;
 }
 
-function getFloatQueryString(inGameUrl) {
-    let prefix = 'csgo_econ_action_preview%20';
-    let index = inGameUrl.indexOf(prefix);
-    return inGameUrl.substring(index + prefix.length);
-}
 
 function getPrice(itemInfo) {
     return (itemInfo.converted_price + itemInfo.converted_fee) / 100;
 }
 
 
-~ function initClient() {
-    floatClient = new FloatClient({
-        account_name: config.username,
-        password: config.pass || process.env.CSGO_PW,
-        sha_sentryfile: fs.readFileSync('access.sentry'),
-        // auth_code: 'V53CJ'
-    }, false);
-
-    floatClient
-        .on('ready', () => {
-            // client.requestFloat(floatQueryString).then(floatValue => console.log('Skin float value:', floatValue))
-            clientReady = true;
-        })
-        .on('sentry', data => {
-            console.log('sentry', data)
-            fs.writeFileSync('access.sentry', data)
-        })
-        .on('error', err => console.log(err))
-}()
-
+setInterval(() => {
+    if (roundDone) {
+        console.log(`${new Date()},开始新一轮scan`);
+        getItems();
+    }
+}, 5000);
 
 // getItems();
