@@ -1,0 +1,14 @@
+{
+  "name": "csgo-puppeteer",
+  "version": "1.0.0",
+  "description": "use puppeteer to refersh page and check items",
+  "main": "index.js",
+  "author": "Han Li",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "puppeteer": "^0.11.0"
+  }
+}
