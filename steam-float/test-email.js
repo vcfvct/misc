@@ -1,22 +1,11 @@
 #!/usr/bin/env node
 
-// var sendmail = require('../sendmail')({silent: true})
-const sendmail = require('sendmail');
-
-// sendmail({
-//   from: 'han.li@finra.org',
-//   to: 'vcfvct@gmail.com',
-//   subject: 'MailComposer sendmail',
-//   html: 'Mail of test sendmail '
-// }, function (err, reply) {
-//   console.log(err && err.stack)
-//   console.dir(reply)
-// })
+const sendmail = require('sendmail')();
 
 sendmail({
-  from: 'test@capitalone.com',
+  from: 'han.li@finra.com',
+  // from: 'test@example.com',
   to: 'vcfvct@gmail.com',
-  replyTo: 'jason@yourdomain.com',
   subject: 'MailComposer sendmail',
   html: 'Mail of test sendmail '
 }, function (err, reply) {
