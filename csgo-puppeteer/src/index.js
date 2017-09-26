@@ -6,6 +6,7 @@ const config = require('./config');
 const sendmail = require('sendmail')();
 
 let lastList;
+const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemHash}`;
 
 (async () => {
     const browser = await puppeteer.launch({ headless: false, delay: 1000 });
@@ -18,7 +19,7 @@ let lastList;
 
     try {
         await page.setCookie(...config.cookies);
-        await page.goto(`https://steamcommunity.com/market/listings/730/${config.itemHash}`);
+        await page.goto(targetUrl);
         await page.waitForSelector('.market_paging_summary');
         run(browser, page);
     } catch (e) {
@@ -51,12 +52,13 @@ async function extractPage(browser, page) {
     let msg = '';
     for (let item of newItems) {
         const floatInfo = await getFloat(browser, item);
-        msg += `${new Date()} -- floatvalue is ${floatInfo}, and price is: ${getPrice(item)} \n`;
+        msg += `${new Date()} -- 磨损值： ${floatInfo}, and 价格 : ${getPrice(item)} \n<br/>`;
     }
-    if(newItems.length){
+    if (newItems.length) {
+        msg += `...点击<a href="${targetUrl}" target="_blank">这里前往</a><br/>`
         // let's notify user
         notify(config.notifyEmail, msg);
-    }
+    } j
 }
 
 async function getFloat(browser, itemInfo) {
@@ -106,10 +108,10 @@ function notify(to, msg) {
         to: to,
         subject: '有新物品了！',
         html: msg
-      }, function (err, reply) {
+    }, function (err, reply) {
         console.log(err && err.stack)
         console.dir(reply)
-      })
+    })
 }
 
 async function login(page) {
