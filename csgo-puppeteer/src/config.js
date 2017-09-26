@@ -2,7 +2,7 @@ const config = {};
 
 config.itemHash = '%E2%98%85%20M9%20Bayonet';
 
-const sessionid = '17ba932f2eb12f542069f073';
+const sessionid = '';
 config.cookies = [
     { name: 'Steam_Language', value: 'schinese', domain: '.steamcommunity.com' },
     { name: 'steamLogin', value: '76561198412716157%7C%7CCAA1933E30FB6DC1D81394D84AB77221F6125EE0', domain: '.steamcommunity.com' },
