@@ -2,6 +2,8 @@
 
 const puppeteer = require('puppeteer');
 const config = require('./config');
+// const sendmail = require('sendmail')({silent: true});
+const sendmail = require('sendmail')();
 
 let lastList;
 
@@ -46,9 +48,14 @@ async function extractPage(browser, page) {
     console.log(`${new Date()} -- 本轮scan物品数： ${Object.keys(listInfos).length}`);
     const newItems = getNewItems(listInfos, lastList);
     lastList = listInfos;
+    let msg = '';
     for (let item of newItems) {
         const floatInfo = await getFloat(browser, item);
-        console.log(`${new Date()} -- floatvalue is ${floatInfo}, and price is: ${getPrice(item)}`);
+        msg += `${new Date()} -- floatvalue is ${floatInfo}, and price is: ${getPrice(item)} \n`;
+    }
+    if(newItems.length){
+        // let's notify user
+        notify(config.notifyEmail, msg);
     }
 }
 
@@ -90,6 +97,19 @@ function getNewItems(newList, oldList) {
         });
     }
     return result;
+}
+
+function notify(to, msg) {
+    console.log(`sending email to ${to} with content: ${msg}`);
+    sendmail({
+        from: 'han.li@finra.org',
+        to: to,
+        subject: '有新物品了！',
+        html: msg
+      }, function (err, reply) {
+        console.log(err && err.stack)
+        console.dir(reply)
+      })
 }
 
 async function login(page) {
