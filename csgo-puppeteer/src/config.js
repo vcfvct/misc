@@ -39,7 +39,7 @@ config.email163Profile = {
         }
     }
 };
-
-config.soundFilePath = '../asset/hammer.mp3';
+// 音频文件的相对路径
+config.soundFilePath = 'asset/hammer.mp3';
 
 module.exports = Object.freeze(config);

@@ -1,7 +1,13 @@
 #!/usr/bin/env node
-
-const player = require('play-sound')(opts = {});
+const play = require('../src/sound');
 const config = require('../src/config');
-player.play(config.soundFilePath, (err) => {
-    if (err) throw err
-  });
+const player = require('play-sound')(opts = {});
+
+play(config.soundFilePath);
+
+
+// player.play(path.resolve(config.soundFilePath), (err) => {
+//     if (err) {
+//         console.error(`音频 播放失败！`, err);
+//     }
+// });

@@ -3,10 +3,10 @@
 const puppeteer = require('puppeteer');
 const config = require('./config');
 // const sendmail = require('sendmail')({silent: true});
-const EmailService = require('../src/email');
+const EmailService = require('./email');
 // 用sohu发送
 const emailService = new EmailService('sohu');
-const player = require('play-sound')(opts = {});
+const play = require('./sound');
 
 let lastList;
 const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemHash}`;
@@ -65,9 +65,7 @@ async function extractPage(browser, page) {
         msg += `${new Date()} -- 磨损值： ${floatInfo}, and 价格 : ${getPrice(item)} \n<br/>`;
     }
     if (newItems.length) {
-        player.play(config.soundFilePath, (err) => {
-            if (err) throw err
-        });
+        play(config.soundFilePath);
         msg += `...点击<a href="${targetUrl}" target="_blank">这里前往</a><br/>`
         // let's notify user
         emailService.sendEmail('有新物品了！', msg);
