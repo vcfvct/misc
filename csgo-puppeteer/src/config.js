@@ -21,7 +21,7 @@ config.emailSohuProfile = {
         port: 25,
         auth: {
             user: 'a21223550@sohu.com',
-            pw: ''
+            pass: ''
         }
     }
 };
