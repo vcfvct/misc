@@ -3,7 +3,9 @@
 const puppeteer = require('puppeteer');
 const config = require('./config');
 // const sendmail = require('sendmail')({silent: true});
-const sendmail = require('sendmail')();
+const EmailService = require('../src/email');
+// 用sohu发送
+const emailService = new EmailService('sohu');
 
 let lastList;
 const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemHash}`;
@@ -20,7 +22,7 @@ const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemH
     try {
         await page.setCookie(...config.cookies);
         await page.goto(targetUrl);
-        await page.waitForSelector('.market_paging_summary');
+        // await page.waitForSelector('.market_paging_summary');
         run(browser, page);
     } catch (e) {
         console.log(e);
@@ -36,7 +38,8 @@ async function run(browser, page) {
         console.log(e);
     }
     page.reload();
-    setTimeout(() => run(browser, page), Math.random() * 8000);
+    // 3秒到10秒随机
+    setTimeout(() => run(browser, page), 3 + Math.random() * 7000);
 }
 
 async function extractPage(browser, page) {
@@ -45,7 +48,13 @@ async function extractPage(browser, page) {
     let g_rgListingInfo = pageContent.substring(pageContent.indexOf(g_rgListingInfo_index_string) + g_rgListingInfo_index_string.length, pageContent.indexOf('var g_plotPriceHistory ='));
     const lastIndexOfSemi = g_rgListingInfo.lastIndexOf(';');
     g_rgListingInfo = g_rgListingInfo.substring(0, lastIndexOfSemi);
-    const listInfos = JSON.parse(g_rgListingInfo);
+    let listInfos = {}; 
+    try {
+        listInfos = JSON.parse(g_rgListingInfo);
+    } catch(e){
+        console.log('没有得到完整json，返回！');
+        return;
+    }
     console.log(`${new Date()} -- 本轮scan物品数： ${Object.keys(listInfos).length}`);
     const newItems = getNewItems(listInfos, lastList);
     lastList = listInfos;
@@ -57,8 +66,8 @@ async function extractPage(browser, page) {
     if (newItems.length) {
         msg += `...点击<a href="${targetUrl}" target="_blank">这里前往</a><br/>`
         // let's notify user
-        notify(config.notifyEmail, msg);
-    } j
+        emailService.sendEmail('有新物品了！', msg);
+    }
 }
 
 async function getFloat(browser, itemInfo) {
@@ -99,27 +108,4 @@ function getNewItems(newList, oldList) {
         });
     }
     return result;
-}
-
-function notify(to, msg) {
-    console.log(`sending email to ${to} with content: ${msg}`);
-    sendmail({
-        from: 'han.li@finra.org',
-        to: to,
-        subject: '有新物品了！',
-        html: msg
-    }, function (err, reply) {
-        console.log(err && err.stack)
-        console.dir(reply)
-    })
-}
-
-async function login(page) {
-    await page.click('a.global_action_link');
-    await page.waitForSelector('input#steamAccountName');
-    await page.focus('#steamAccountName');
-    await page.type('MYACC');
-    await page.focus('#steamPassword');
-    await page.type('MYPW');
-    return await page.click('input[type="submit"]');
 }
