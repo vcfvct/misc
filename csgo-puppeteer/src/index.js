@@ -6,6 +6,7 @@ const config = require('./config');
 const EmailService = require('../src/email');
 // 用sohu发送
 const emailService = new EmailService('sohu');
+const player = require('play-sound')(opts = {});
 
 let lastList;
 const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemHash}`;
@@ -48,10 +49,10 @@ async function extractPage(browser, page) {
     let g_rgListingInfo = pageContent.substring(pageContent.indexOf(g_rgListingInfo_index_string) + g_rgListingInfo_index_string.length, pageContent.indexOf('var g_plotPriceHistory ='));
     const lastIndexOfSemi = g_rgListingInfo.lastIndexOf(';');
     g_rgListingInfo = g_rgListingInfo.substring(0, lastIndexOfSemi);
-    let listInfos = {}; 
+    let listInfos = {};
     try {
         listInfos = JSON.parse(g_rgListingInfo);
-    } catch(e){
+    } catch (e) {
         console.log('没有得到完整json，返回！');
         return;
     }
@@ -64,6 +65,9 @@ async function extractPage(browser, page) {
         msg += `${new Date()} -- 磨损值： ${floatInfo}, and 价格 : ${getPrice(item)} \n<br/>`;
     }
     if (newItems.length) {
+        player.play(config.soundFilePath, (err) => {
+            if (err) throw err
+        });
         msg += `...点击<a href="${targetUrl}" target="_blank">这里前往</a><br/>`
         // let's notify user
         emailService.sendEmail('有新物品了！', msg);

@@ -76,6 +76,12 @@ fd-slicer@~1.0.1:
   dependencies:
     pend "~1.2.0"
 
+find-exec@0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/find-exec/-/find-exec-0.0.8.tgz#c89d36894ad7b6e2aa36b84270d0b2c9c32344db"
+  dependencies:
+    sync-exec "^0.6.2"
+
 fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
@@ -192,6 +198,12 @@ pend@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/pend/-/pend-1.2.0.tgz#7a57eb550a6783f9115331fcf4663d5c8e007a50"
 
+play-sound@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/play-sound/-/play-sound-1.1.1.tgz#a0a5d29358beb298d33021b13bdedee09c67e7f1"
+  dependencies:
+    find-exec "0.0.8"
+
 process-nextick-args@~1.0.6:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-1.0.7.tgz#150e20b756590ad3f91093f25a4f2ad8bff30ba3"
@@ -251,6 +263,10 @@ string_decoder@~1.0.3:
   resolved "https://registry.yarnpkg.com/string_decoder/-/string_decoder-1.0.3.tgz#0fc67d7c141825de94282dd536bec6b9bce860ab"
   dependencies:
     safe-buffer "~5.1.0"
+
+sync-exec@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/sync-exec/-/sync-exec-0.6.2.tgz#717d22cc53f0ce1def5594362f3a89a2ebb91105"
 
 typedarray@^0.0.6:
   version "0.0.6"

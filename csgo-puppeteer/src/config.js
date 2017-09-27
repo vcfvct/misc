@@ -40,4 +40,6 @@ config.email163Profile = {
     }
 };
 
+config.soundFilePath = '../asset/hammer.mp3';
+
 module.exports = Object.freeze(config);

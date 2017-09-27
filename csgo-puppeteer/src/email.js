@@ -21,10 +21,12 @@ class EmailService {
         const mailOptions = {
             from: this.emailProfile.from,
             to: this.emailProfile.to,
-            cc: this.emailProfile.from,
             subject: subject,
             html: body
         };
+        if(this.emailProfile.cc){
+            mailOptions.cc =this.emailProfile.cc 
+        }
         console.info(`Sending email from ${this.emailProfile.from} to ${this.emailProfile.to} with subject: ${subject}. content: \n ${body}`); 
         this.transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
