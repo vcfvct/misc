@@ -45,7 +45,7 @@ async function run(browser, page) {
     }
     page.reload();
     // 10秒到15秒随机
-    setTimeout(() => run(browser, page),  utils.randomIntFromInterval(10, 15)*1000);
+    setTimeout(() => run(browser, page),  Utils.randomIntFromInterval(10, 15)*1000);
 }
 
 async function extractPage(browser, page) {
