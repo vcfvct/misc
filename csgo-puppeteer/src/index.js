@@ -5,7 +5,8 @@ const config = require('./config');
 // const sendmail = require('sendmail')({silent: true});
 const EmailService = require('./email');
 // 用sohu发送
-const emailService = new EmailService('sohu');
+const emailService1 = new EmailService('sohu');
+const emailService2 = new EmailService('163');
 const play = require('./sound');
 const Utils = require('./utils');
 const ItemService = require('./item');
@@ -72,7 +73,8 @@ async function extractPage(browser, page) {
         play(config.soundFilePath);
         msg += `...点击<a href="${targetUrl}" target="_blank">这里前往</a><br/>`
         // let's notify user
-        emailService.sendEmail('有新物品了！', msg);
+        emailService2.sendEmail('有新物品了！', msg);
+        emailService1.sendEmail('有新物品了！', msg);
     }
 }
 
