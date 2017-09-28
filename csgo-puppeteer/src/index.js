@@ -7,12 +7,16 @@ const EmailService = require('./email');
 // 用sohu发送
 const emailService = new EmailService('sohu');
 const play = require('./sound');
+const Utils = require('./utils');
+const ItemService = require('./item');
+const itemService = new ItemService();
 
 let lastList;
 const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemHash}`;
 
 (async () => {
-    const browser = await puppeteer.launch({ headless: false, delay: 1000 });
+    // const browser = await puppeteer.launch({ headless: false, delay: 1000 });
+    const browser = await puppeteer.launch({ headless: true, args: ['--disable-timeouts-for-profiling']  });
     const page = await browser.newPage();
     const viewPort = {
         width: 1280,
@@ -39,8 +43,8 @@ async function run(browser, page) {
         console.log(e);
     }
     page.reload();
-    // 3秒到10秒随机
-    setTimeout(() => run(browser, page), 3 + Math.random() * 7000);
+    // 10秒到15秒随机
+    setTimeout(() => run(browser, page),  utils.randomIntFromInterval(10, 15)*1000);
 }
 
 async function extractPage(browser, page) {
@@ -57,12 +61,12 @@ async function extractPage(browser, page) {
         return;
     }
     console.log(`${new Date()} -- 本轮scan物品数： ${Object.keys(listInfos).length}`);
-    const newItems = getNewItems(listInfos, lastList);
+    const newItems = calcNewItems(listInfos, lastList);
     lastList = listInfos;
     let msg = '';
     for (let item of newItems) {
-        const floatInfo = await getFloat(browser, item);
-        msg += `${new Date()} -- 磨损值： ${floatInfo}, and 价格 : ${getPrice(item)} \n<br/>`;
+        const floatInfo = await itemService.getFloat(item);
+        msg += `${new Date()} -- 磨损值： ${floatInfo}, and 价格 : ${itemService.getPrice(item)} \n<br/>`;
     }
     if (newItems.length) {
         play(config.soundFilePath);
@@ -72,33 +76,8 @@ async function extractPage(browser, page) {
     }
 }
 
-async function getFloat(browser, itemInfo) {
-    const floatPage = await browser.newPage();
-    const queryUrl = getQueryUrl(itemInfo);
-    await floatPage.goto(queryUrl);
 
-    const floatHolder = await floatPage.evaluate(() => {
-        const preTag = document.querySelector('pre');
-        return JSON.parse(preTag.innerHTML);
-    });
-    await floatPage.close();
-    return floatHolder.iteminfo.floatvalue;
-}
-
-function getQueryUrl(itemInfo) {
-    const linkTemplate = itemInfo.asset.market_actions[0].link;
-    const indexOfD = linkTemplate.lastIndexOf('D');
-    const paramD = linkTemplate.substring(indexOfD + 1);
-    const paramA = itemInfo.asset.id;
-    const paramM = itemInfo.listingid;
-    return `https://api.csgofloat.com:1738/?m=${paramM}&a=${paramA}&d=${paramD}`;
-}
-
-function getPrice(itemInfo) {
-    return (itemInfo.converted_price + itemInfo.converted_fee) / 100;
-}
-
-function getNewItems(newList, oldList) {
+function calcNewItems(newList, oldList) {
     const result = [];
     const newListIds = Object.keys(newList);
     if (oldList) {

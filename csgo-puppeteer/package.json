@@ -9,6 +9,7 @@
     "start": "node src/index.js"
   },
   "dependencies": {
+    "axios": "^0.16.2",
     "nodemailer": "^4.1.1",
     "nodemailer-smtp-transport": "^2.7.4",
     "play-sound": "^1.1.1",
