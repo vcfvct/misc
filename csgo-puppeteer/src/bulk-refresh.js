@@ -11,34 +11,31 @@ const ItemService = require('./item');
 const itemService = new ItemService();
 
 let lastList = {};
-// Mirco template https://www.keithcirkel.co.uk/es6-template-literals/
-const getApiUrl = (count) => `http://steamcommunity.com/market/listings/730/${config.itemHash}/render?start=0&count=${count}&currency=23&language=english`;
+const apiUrl = `http://steamcommunity.com/market/listings/730/${config.itemHash}/render?start=0&count=100&currency=23&language=english`;
 const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemHash}`;
 (async () => {
     try {
-        lastList = await getItemList(100);
-        run(Object.keys(lastList).length + 5);
+        lastList = await getItemList();
+        run();
     } catch (e) {
         console.log(e);
     }
 })();
 
-async function run(count) {
+async function run() {
     try {
-        await extractPage(count);
+        await extractPage();
     } catch (e) {
         console.log(e);
     }
-    // 下一次count比上轮总数多5个
-    const nextCount = Object.keys(lastList).length + 5;
     // schedule下一个扫描
-    setTimeout(() => run(nextCount),
+    setTimeout(() => run(),
         Utils.randomIntFromInterval(config.interval.min, config.interval.max) * 1000
     );
 }
 
-async function extractPage(count) {
-    const newList = await getItemList(count);
+async function extractPage() {
+    const newList = await getItemList();
     const newItems = calcNewItems(newList, lastList);
     lastList = newList;
     let msg = '';
@@ -55,9 +52,8 @@ async function extractPage(count) {
     }
 }
 
-async function getItemList(count) {
-    const url = getApiUrl(count);
-    let res = await axios.get(url);
+async function getItemList() {
+    let res = await axios.get(apiUrl);
     console.log(`${Utils.getLocaleDateTime()},拿到新的列表，共有${res.data.total_count}个物品。`);
     return res.data.listinginfo;
 }
