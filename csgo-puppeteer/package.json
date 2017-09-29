@@ -6,7 +6,8 @@
   "author": "Han Li",
   "license": "MIT",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "bulk": "node src/bulk-refresh.js"
   },
   "dependencies": {
     "axios": "^0.16.2",

@@ -17,7 +17,7 @@ const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemH
 
 (async () => {
     // const browser = await puppeteer.launch({ headless: false, delay: 1000 });
-    const browser = await puppeteer.launch({ headless: true, args: ['--disable-timeouts-for-profiling']  });
+    const browser = await puppeteer.launch({ headless: true, args: ['--disable-timeouts-for-profiling'] });
     const page = await browser.newPage();
     const viewPort = {
         width: 1280,
@@ -44,8 +44,10 @@ async function run(browser, page) {
         console.log(e);
     }
     page.reload();
-    // 10秒到15秒随机
-    setTimeout(() => run(browser, page),  Utils.randomIntFromInterval(10, 15)*1000);
+    // schedule下一个扫描
+    setTimeout(() => run(browser, page),
+        Utils.randomIntFromInterval(config.interval.min, config.interval.max) * 1000
+    );
 }
 
 async function extractPage(browser, page) {
@@ -61,20 +63,20 @@ async function extractPage(browser, page) {
         console.log('没有得到完整json，返回！');
         return;
     }
-    console.log(`${new Date()} -- 本轮scan物品数： ${Object.keys(listInfos).length}`);
+    console.log(`${Utils.getLocaleDateTime()} -- 本轮scan物品数： ${Object.keys(listInfos).length}`);
     const newItems = calcNewItems(listInfos, lastList);
     lastList = listInfos;
     let msg = '';
     for (let item of newItems) {
         const floatInfo = await itemService.getFloat(item);
-        msg += `${new Date()} -- 磨损值： ${floatInfo}, and 价格 : ${itemService.getPrice(item)} \n<br/>`;
+        msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, and 价格 : ${itemService.getPrice(item)} \n<br/>`;
     }
     if (newItems.length) {
         play(config.soundFilePath);
         msg += `...点击<a href="${targetUrl}" target="_blank">这里前往</a><br/>`
         // let's notify user
-        emailService2.sendEmail('有新物品了！', msg);
-        emailService1.sendEmail('有新物品了！', msg);
+        emailService2.sendEmail(config.emailSubject, msg);
+        emailService1.sendEmail(config.emailSubject, msg);
     }
 }
 

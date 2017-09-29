@@ -39,7 +39,16 @@ config.email163Profile = {
         }
     }
 };
+// email 主题
+config.emailSubject = '有新物品了！';
+
 // 音频文件的相对路径
 config.soundFilePath = 'asset/hammer.mp3';
+
+// 扫描的最大最小间隔，在这个区间随机产生。如果两个值相等，就是一个固定时间间隔。
+config.interval = {
+    min: 10,
+    max: 15
+};
 
 module.exports = Object.freeze(config);
