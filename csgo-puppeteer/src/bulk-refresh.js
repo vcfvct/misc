@@ -41,11 +41,11 @@ async function extractPage() {
     let msg = '';
     for (let item of newItems) {
         const floatInfo = await itemService.getFloat(item);
-        msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, and 价格 : ${itemService.getPrice(item)} \n<br/>`;
+        msg += `<p>${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, and 价格 : ${itemService.getPrice(item)}</p> \n<br/>`;
     }
     if (newItems.length) {
         play(config.soundFilePath);
-        msg += `...点击<a href="${targetUrl}" target="_blank">这里前往</a><br/>`
+        msg += `<p>...点击<a href="${targetUrl}" target="_blank">这里前往</a></p><br/>`
         // let's notify user
         emailService1.sendEmail(config.emailSubject, msg);
         emailService2.sendEmail(config.emailSubject, msg);
