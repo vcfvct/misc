@@ -7,10 +7,10 @@ const EmailService = require('./email');
 // 用sohu发送
 const emailService1 = new EmailService('sohu');
 const emailService2 = new EmailService('163');
-const play = require('./sound');
 const Utils = require('./utils');
 const ItemService = require('./item');
 const itemService = new ItemService();
+const cookies = require('./cookie');
 
 let lastList;
 const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemHash}`;
@@ -26,9 +26,8 @@ const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemH
     page.setViewport(viewPort);
 
     try {
-        await page.setCookie(...config.cookies);
+        await page.setCookie(...cookies);
         await page.goto(targetUrl);
-        // await page.waitForSelector('.market_paging_summary');
         run(browser, page);
     } catch (e) {
         console.log(e);
@@ -64,33 +63,12 @@ async function extractPage(browser, page) {
         return;
     }
     console.log(`${Utils.getLocaleDateTime()} -- 本轮scan物品数： ${Object.keys(listInfos).length}`);
-    const newItems = calcNewItems(listInfos, lastList);
+    const newItems = Utils.calcNewItems(listInfos, lastList);
     lastList = listInfos;
-    let msg = '';
-    for (let item of newItems) {
-        const floatInfo = await itemService.getFloat(item);
-        msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, and 价格 : ${itemService.getPrice(item)} \n<br/>`;
-    }
-    if (newItems.length) {
-        play(config.soundFilePath);
-        msg += `...点击<a href="${targetUrl}" target="_blank">这里前往</a><br/>`
-        // let's notify user
-        emailService2.sendEmail(config.emailSubject, msg);
-        emailService1.sendEmail(config.emailSubject, msg);
+    let msg = await Utils.getNotifyMsg(newItems, itemService, config.itemCriterials);
+    if (msg) {
+        Utils.notify(config.soundFilePath, targetUrl, config.emailSubject, msg, emailService1, emailService2);
     }
 }
 
 
-function calcNewItems(newList, oldList) {
-    const result = [];
-    const newListIds = Object.keys(newList);
-    if (oldList) {
-        const newListIds = Object.keys(newList);
-        newListIds.forEach((oldId) => {
-            if (!oldList[oldId]) {
-                result.push(newList[oldId]);
-            }
-        });
-    }
-    return result;
-}

@@ -1,18 +1,7 @@
 const config = {};
 // 扫描物品
 config.itemHash = '%E2%98%85%20M9%20Bayonet';
-// 登陆信息
-const sessionid = '';
-const steamRememberLogin = '';
-config.cookies = [
-    { name: 'Steam_Language', value: 'schinese', domain: '.steamcommunity.com' },
-    { name: 'steamLogin', value: '76561198412716157%7C%7CCAA1933E30FB6DC1D81394D84AB77221F6125EE0', domain: '.steamcommunity.com' },
-    { name: 'steamLoginSecure', value: '76561198412716157%7C%7CEA3B72D2C6B88B5114834CC380C6034D63E038B4', domain: '.steamcommunity.com' },
-    { name: 'steamMachineAuth76561198412716157', value: 'CBAD730388DACD5A42435060F2E1600CBE4C8E57', domain: '.steamcommunity.com' },
-    { name: 'steamRememberLogin', value: process.env.steamRememberLogin || steamRememberLogin , domain: '.steamcommunity.com' },
-    { name: 'webTradeEligibility', value: '%7B%22allowed%22%3A1%2C%22allowed_at_time%22%3A0%2C%22steamguard_required_days%22%3A15%2C%22sales_this_year%22%3A0%2C%22max_sales_per_year%22%3A200%2C%22forms_requested%22%3A0%2C%22new_device_cooldown_days%22%3A7%2C%22time_checked%22%3A1505788588%7D', domain: '.steamcommunity.com' },
-    { name: 'sessionid', value: process.env.sessionid || sessionid, domain: '.steamcommunity.com' }
-];
+
 // sohu邮箱配置
 config.emailSohuProfile = {
     from: 'a21223550@sohu.com',
@@ -48,8 +37,33 @@ config.soundFilePath = 'asset/hammer.mp3';
 
 // 扫描的最大最小间隔，在这个区间随机产生。如果两个值相等，就是一个固定时间间隔。
 config.interval = {
-    min: 10,
+    min: 14,
     max: 15
 };
+
+// 可以规定： 1. 最低价格 2, 磨损区间， 3.磨损区间+价格区间
+config.itemCriterials = [
+    {
+        float: {
+            min: 0.15,
+            max: 0.17
+        }
+    },
+    {
+        price:{
+            max: 800
+        }
+    },
+    {
+        float:{
+            min: 0.5,
+            max: 0.6
+        }, 
+        price: {
+            max: 1000,
+            min: 2000
+        }
+    }
+];
 
 module.exports = Object.freeze(config);
