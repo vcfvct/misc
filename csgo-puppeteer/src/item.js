@@ -20,7 +20,7 @@ class ItemService {
         return (itemInfo.converted_price + itemInfo.converted_fee) / 100;
     }
 
-    isGoodItem(float, price, criterial){
+    isGoodItem(float, price, criterials){
         let result = false;
         if(criterials.length){
             for(let criterial of criterials){
