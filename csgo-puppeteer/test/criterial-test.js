@@ -2,7 +2,7 @@
 const ItemService = require('../src/item');
 
 
-const criterials = [
+const criterias = [
     {
         float: {
             min: 0.15,
@@ -26,7 +26,7 @@ const criterials = [
     }
 ];
 
-const itemService = new ItemService(criterials);
+const itemService = new ItemService(criterias);
 console.log(itemService.isGoodItem(0.16, 9000));
 console.log(itemService.isGoodItem(0.9, 400));
 console.log(itemService.isGoodItem(0.55, 1500));

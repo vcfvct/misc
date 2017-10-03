@@ -36,7 +36,7 @@ async function extractPage() {
     const newList = await getItemList();
     const newItems = Utils.calcNewItems(newList, lastList);
     lastList = newList;
-    let msg = await Utils.getNotifyMsg(newItems, itemService, config.itemCriterials);
+    let msg = await Utils.getNotifyMsg(newItems, itemService, config.itemCriterias);
     if (msg) {
         Utils.notify(config.soundFilePath, targetUrl, config.emailSubject, msg, emailService1, emailService2);
     }

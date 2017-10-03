@@ -24,12 +24,12 @@ class Utils {
         return result;
     }
 
-    static async getNotifyMsg(newItems, itemService, criterial) {
+    static async getNotifyMsg(newItems, itemService, criterias) {
         let msg = '';
         for (let item of newItems) {
             const floatInfo = await itemService.getFloat(item);
             const price = itemService.getPrice(item);
-            if (itemService.isGoodItem(floatInfo, price, criterial)) {
+            if (itemService.isGoodItem(floatInfo, price, criterias)) {
                 msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, and 价格 : ${price} \n<br/>`;
             }
         }

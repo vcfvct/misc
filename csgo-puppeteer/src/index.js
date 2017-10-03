@@ -65,7 +65,7 @@ async function extractPage(browser, page) {
     console.log(`${Utils.getLocaleDateTime()} -- 本轮scan物品数： ${Object.keys(listInfos).length}`);
     const newItems = Utils.calcNewItems(listInfos, lastList);
     lastList = listInfos;
-    let msg = await Utils.getNotifyMsg(newItems, itemService, config.itemCriterials);
+    let msg = await Utils.getNotifyMsg(newItems, itemService, config.itemCriterias);
     if (msg) {
         Utils.notify(config.soundFilePath, targetUrl, config.emailSubject, msg, emailService1, emailService2);
     }

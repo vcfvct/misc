@@ -20,11 +20,11 @@ class ItemService {
         return (itemInfo.converted_price + itemInfo.converted_fee) / 100;
     }
 
-    isGoodItem(float, price, criterials){
+    isGoodItem(float, price, criterias){
         let result = false;
-        if(criterials.length){
-            for(let criterial of criterials){
-               if(this.isInRange(criterial.price, price) && this.isInRange(criterial.float, float)){
+        if(criterias.length){
+            for(let criteria of criterias){
+               if(this.isInRange(criteria.price, price) && this.isInRange(criteria.float, float)){
                    result = true;
                    break;
                } 

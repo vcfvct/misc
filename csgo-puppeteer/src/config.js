@@ -42,7 +42,7 @@ config.interval = {
 };
 
 // 可以规定： 1. 最低价格 2, 磨损区间， 3.磨损区间+价格区间
-config.itemCriterials = [
+config.itemCriterias = [
     {
         float: {
             min: 0.15,
