@@ -41,3 +41,13 @@ sudo chown www-data:www-data /var/www/html/ -R
 # Mysql client
 sudo apt-get install mysql-client
 mysql -h RDS-HOST -P 3306 -u cccgadm -p
+mysql -h mysql-drupal.c7lqc6fawrjq.us-east-1.rds.amazonaws.com -P 3306 -u cccgadm -p cccgerm < cccgerm.sql 
+# drupal mysql connection info
+vi /var/www/html/sites/default/settings.php
+
+# keep EBS when ec2 terminated.
+aws ec2 modify-instance-attribute --instance-id i-0396d712353dd73c4 --block-device-mappings "[{\"DeviceName\": \"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":false}}]" --region us-east-1
+
+# drupal files in S3
+aws s3 cp s3://cccg-drupal-fs/site.tgz site.tgz
+tar -xvf site.tgz --directory /var/www/html
