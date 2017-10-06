@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const axios = require('axios');
+const axios = require('axios').create();
 const config = require('./config');
 // const sendmail = require('sendmail')({silent: true});
 const EmailService = require('./email');
@@ -11,6 +11,10 @@ const itemService = new ItemService();
 let lastList = {};
 const apiUrl = `http://steamcommunity.com/market/listings/730/${config.itemHash}/render?start=0&count=100&currency=23&language=english`;
 const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemHash}`;
+
+// API 超时时间
+const API_TIMEOUT = 15;
+
 (async () => {
     try {
         lastList = await getItemList();
@@ -43,7 +47,7 @@ async function extractPage() {
 }
 
 async function getItemList() {
-    let res = await axios.get(apiUrl);
+    let res = await axios.get(apiUrl, {timeout: API_TIMEOUT * 1000});
     console.log(`${Utils.getLocaleDateTime()},拿到新的列表，共有${res.data.total_count}个物品。`);
     return res.data.listinginfo;
 }
