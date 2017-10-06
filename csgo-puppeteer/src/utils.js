@@ -27,10 +27,11 @@ class Utils {
     static async getNotifyMsg(newItems, itemService, criterias) {
         let msg = '';
         for (let item of newItems) {
-            const floatInfo = await itemService.getFloat(item);
+            const floatUrl = itemService.getQueryUrl(item);
+            const floatInfo = await itemService.getFloat(floatUrl);
             const price = itemService.getPrice(item);
             if (itemService.isGoodItem(floatInfo, price, criterias)) {
-                msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, and 价格 : ${price} and 成本价: ${(price * 0.8).toFixed(2)} \n<br/>`;
+                msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, and 价格 : ${price} and 成本价: ${(price * 0.8).toFixed(2)} \n<br/>  检视链接：${floatUrl} \n<br/> `;
             }
         }
         return msg;

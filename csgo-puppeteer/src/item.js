@@ -10,9 +10,8 @@ class ItemService {
         return `https://api.csgofloat.com:1738/?m=${paramM}&a=${paramA}&d=${paramD}`;
     }
 
-    async getFloat(itemInfo) {
-        const queryUrl = this.getQueryUrl(itemInfo);
-        const floatHolder = await axios.get(queryUrl);
+    async getFloat(floatUrl) {
+        const floatHolder = await axios.get(floatUrl);
         return floatHolder.data.iteminfo.floatvalue;
     }
 
