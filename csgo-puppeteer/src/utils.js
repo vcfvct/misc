@@ -44,6 +44,12 @@ class Utils {
         // let's notify user
         emailServices.forEach((emailService) => emailService.sendEmail(emailSubject, msg));
     }
+
+    static getCookieString(cookies) {
+        return cookies.reduce((str, cookie) => {
+           return str + `${cookie.name}=${cookie.value};`;
+        }, '');
+    }
 }
 
 module.exports = Utils;
