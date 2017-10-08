@@ -1,5 +1,5 @@
 const config = require('./config');
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 const smtpTransport = require('nodemailer-smtp-transport');
 
 class EmailService {
@@ -24,16 +24,15 @@ class EmailService {
             subject: subject,
             html: body
         };
-        if(this.emailProfile.cc){
-            mailOptions.cc =this.emailProfile.cc 
+        if (this.emailProfile.cc) {
+            mailOptions.cc = this.emailProfile.cc;
         }
-        console.info(`Sending email from ${this.emailProfile.from} to ${this.emailProfile.to} with subject: ${subject}. content: \n ${body}`); 
+        console.info(`Sending email from ${this.emailProfile.from} to ${this.emailProfile.to} with subject: ${subject}. content: \n ${body}`);
         this.transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
                 return console.log(error);
             }
             console.log('Message sent: ' + info.response);
-
         });
     }
 }

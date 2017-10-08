@@ -1,6 +1,5 @@
 const play = require('./sound');
 
-
 class Utils {
     static randomIntFromInterval(min, max) {
         return Math.floor(Math.random() * (max - min + 1) + min);
@@ -12,7 +11,6 @@ class Utils {
 
     static calcNewItems(newList, oldList) {
         const result = [];
-        const newListIds = Object.keys(newList);
         if (oldList) {
             const newListIds = Object.keys(newList);
             newListIds.forEach((oldId) => {
@@ -40,15 +38,13 @@ class Utils {
      */
     static notify(soundPath, targetUrl, emailSubject, msg, ...emailServices) {
         play(soundPath);
-        msg += `...点击<a href="${targetUrl}" target="_blank">这里前往</a><br/>`
+        msg += `...点击<a href="${targetUrl}" target="_blank">这里前往</a><br/>`;
         // let's notify user
         emailServices.forEach((emailService) => emailService.sendEmail(emailSubject, msg));
     }
 
     static getCookieString(cookies) {
-        return cookies.reduce((str, cookie) => {
-           return str + `${cookie.name}=${cookie.value};`;
-        }, '');
+        return cookies.reduce((str, cookie) => str + `${cookie.name}=${cookie.value};`, '');
     }
 }
 

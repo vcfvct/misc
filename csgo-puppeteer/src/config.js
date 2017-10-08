@@ -50,15 +50,15 @@ config.itemCriterias = [
         }
     },
     {
-        price:{
+        price: {
             max: 800
         }
     },
     {
-        float:{
+        float: {
             min: 0.5,
             max: 0.6
-        }, 
+        },
         price: {
             max: 1000,
             min: 2000

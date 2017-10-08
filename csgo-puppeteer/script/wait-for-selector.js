@@ -11,11 +11,11 @@ puppeteer.launch({
     page
         .waitForSelector('img')
         .then(() => console.log('First URL with image: ' + currentURL));
-    for (currentURL of ['https://example.com', 'https://google.com', 'https://bbc.com'])
+    for (currentURL of ['https://example.com', 'https://google.com', 'https://bbc.com']) {
         await page.goto(currentURL);
+    }
     await browser.close();
 });
-
 
 /*
  this.browser = await puppeteer.launch(

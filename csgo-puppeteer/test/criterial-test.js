@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 const ItemService = require('../src/item');
 
-
 const criterias = [
     {
         float: {
@@ -10,15 +9,15 @@ const criterias = [
         }
     },
     {
-        price:{
+        price: {
             max: 800
         }
     },
     {
-        float:{
+        float: {
             min: 0.5,
             max: 0.6
-        }, 
+        },
         price: {
             min: 1000,
             max: 2000

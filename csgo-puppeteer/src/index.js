@@ -21,7 +21,7 @@ const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemH
     const page = await browser.newPage();
     const viewPort = {
         width: 1280,
-        height: 800,
+        height: 800
     };
     page.setViewport(viewPort);
 
@@ -70,5 +70,3 @@ async function extractPage(browser, page) {
         Utils.notify(config.soundFilePath, targetUrl, config.emailSubject, msg, emailService1, emailService2);
     }
 }
-
-
