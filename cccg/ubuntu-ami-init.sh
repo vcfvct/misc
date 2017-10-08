@@ -56,3 +56,14 @@ tar -xvf site.tgz --directory /var/www/html
 usermod -a -G www-data cccgadm
 chmod 755 /var/www/html/sites/default/files/file_attach
 
+### SSL part [HERE](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
+# install certbot
+sudo add-apt-repository ppa:certbot/certbot
+sudo apt update
+sudo apt install python-certbot-nginx
+# get cert
+certbot --nginx -d cccgermantown.org -d www.cccgermantown.org
+# auto renew
+sudo crontab -e
+15 3 * * * /usr/bin/certbot renew --quiet
+
