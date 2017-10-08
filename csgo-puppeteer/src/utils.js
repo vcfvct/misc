@@ -49,3 +49,13 @@ class Utils {
 }
 
 module.exports = Utils;
+
+// static async function login(page) {
+//     await page.click('a.global_action_link');
+//     await page.waitForSelector('input#steamAccountName');
+//     await page.focus('#steamAccountName');
+//     await page.type('MYACC');
+//     await page.focus('#steamPassword');
+//     await page.type('MYPW');
+//     return await page.click('input[type="submit"]');
+// } 

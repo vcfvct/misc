@@ -33,7 +33,6 @@ const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemH
         console.log(e);
     }
     // browser.close();
-
 })();
 
 async function run(browser, page) {
@@ -62,7 +61,12 @@ async function extractPage(browser, page) {
         console.log('没有得到完整json，返回！');
         return;
     }
-    console.log(`${Utils.getLocaleDateTime()} -- 本轮scan物品数： ${Object.keys(listInfos).length}`);
+    const totalCount = Object.keys(listInfos).length;
+    if (lastList && Object.keys(lastList).length > 1 && totalCount === 0) {
+        console.info(`上次总数是: ${Object.keys(lastList).length}, 本次总数是： ${totalCount}, 差距大，返回！`);
+        return;
+    }
+    console.log(`${Utils.getLocaleDateTime()} -- 本轮scan物品数： ${totalCount}`);
     const newItems = Utils.calcNewItems(listInfos, lastList);
     lastList = listInfos;
     let msg = await Utils.getNotifyMsg(newItems, itemService, config.itemCriterias);
