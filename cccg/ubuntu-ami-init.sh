@@ -15,7 +15,7 @@ sudo apt install nginx
 sudo systemctl enable nginx
 sudo systemctl start nginx
 systemctl status nginx
-
+# vi /etc/nginx/nginx.conf   and change the 'client_max_body_size 100M;' to the end of the 'http' section
 sudo rm /etc/nginx/sites-enabled/default
 sudo vi /etc/nginx/conf.d/default.conf
 sudo nginx -t
@@ -27,7 +27,7 @@ sudo systemctl start php7.0-fpm
 systemctl status php7.0-fpm
 php --version
 # <?php phpinfo(); ?>
-# vi /etc/php/7.0/fpm/php.ini      and change the config for 'mbstring.http_input = pass;' and 'mbstring.http_output = pass;','max_execution_time = 360', 'memory_limit = 512M'
+# vi /etc/php/7.0/fpm/php.ini      and change the config for 'mbstring.http_input = pass;' and 'mbstring.http_output = pass;','max_execution_time = 360', 'memory_limit = 512M', 'upload_max_filesize = 100M'
 sudo systemctl restart php7.0-fpm
 # get a `Fatal error: Call to undefined function field_attach_load() in entity.inc`, have to drop the database in RDS and re-create one. Not sure why. https://www.drupal.org/node/2845175 
 # Theme is under `sites/all/themes`, then go to `appearance` menu to enable .https://www.templatemonster.com/help/how-to-install-drupal-7-theme.html
@@ -51,3 +51,8 @@ aws ec2 modify-instance-attribute --instance-id i-0396d712353dd73c4 --block-devi
 # drupal files in S3
 aws s3 cp s3://cccg-drupal-fs/site.tgz site.tgz
 tar -xvf site.tgz --directory /var/www/html
+
+# add cccgadm to nginx 'www-data' group and modify the 'file_attach' directory to have 'w' for the group
+usermod -a -G www-data cccgadm
+chmod 755 /var/www/html/sites/default/files/file_attach
+
