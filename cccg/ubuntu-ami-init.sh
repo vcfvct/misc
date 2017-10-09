@@ -67,3 +67,6 @@ certbot --nginx -d cccgermantown.org -d www.cccgermantown.org
 sudo crontab -e
 15 3 * * * /usr/bin/certbot renew --quiet
 
+## backup to glacier
+aws glacier upload-archive --account-id - --vault-name cccg-file-backup --body cccgerm.sql --region us-east-1
+aws glacier upload-archive --account-id - --vault-name cccg-file-backup --body site.tgz --region us-east0
