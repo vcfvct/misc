@@ -1,6 +1,13 @@
 const axios = require('axios');
 
 class ItemService {
+    getInspectUrl(itemInfo) {
+        const linkTemplate = itemInfo.asset.market_actions[0].link;
+        const paramA = itemInfo.asset.id;
+        const paramM = itemInfo.listingid;
+        return linkTemplate.replace('%listingid%', paramM).replace('%assetid%', paramA);
+    }
+
     getQueryUrl(itemInfo) {
         const linkTemplate = itemInfo.asset.market_actions[0].link;
         const indexOfD = linkTemplate.lastIndexOf('D');
@@ -45,6 +52,5 @@ class ItemService {
         return number >= min && number <= max;
     }
 }
-
 
 module.exports = ItemService;

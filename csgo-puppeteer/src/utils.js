@@ -28,7 +28,7 @@ class Utils {
             const floatInfo = await itemService.getFloat(item);
             const price = itemService.getPrice(item);
             if (itemService.isGoodItem(floatInfo, price, criterias)) {
-                msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, and 价格 : ${price} and 成本价: ${(price * 0.8).toFixed(2)} \n<br/>  检视链接：${item.asset.market_actions[0].link} \n<br/> `;
+                msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, and 价格 : ${price} and 成本价: ${(price * 0.8).toFixed(2)} \n<br/>  检视链接：${itemService.getInspectUrl(item)} \n<br/> `;
             }
         }
         return msg;
