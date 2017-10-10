@@ -37,11 +37,11 @@ const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemH
 
 async function run(browser, page) {
     try {
+        await page.reload();
         await extractPage(browser, page);
     } catch (e) {
         console.log(e);
     }
-    page.reload();
     // schedule下一个扫描
     setTimeout(() => run(browser, page),
         Utils.randomIntFromInterval(config.interval.min, config.interval.max) * 1000

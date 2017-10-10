@@ -67,6 +67,6 @@ certbot --nginx -d cccgermantown.org -d www.cccgermantown.org
 sudo crontab -e
 15 3 * * * /usr/bin/certbot renew --quiet
 
-## backup to glacier
+## backup to glacier, to retrieve use 'initial-job' to create a job and download when job is done
 aws glacier upload-archive --account-id - --vault-name cccg-file-backup --body cccgerm.sql --region us-east-1
 aws glacier upload-archive --account-id - --vault-name cccg-file-backup --body site.tgz --region us-east0
