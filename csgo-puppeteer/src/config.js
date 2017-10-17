@@ -66,4 +66,10 @@ config.itemCriterias = [
     }
 ];
 
+(() => {
+    // 设置再cookies文件夹下面需要用到的文件名
+    const cookiesToInclude = ['c1', 'c2', 'c3'];
+    config.cookies = cookiesToInclude.map((fileName) => require(`./cookies/${fileName}`));
+})();
+
 module.exports = Object.freeze(config);

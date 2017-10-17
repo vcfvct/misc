@@ -10,10 +10,11 @@ const emailService2 = new EmailService('163');
 const Utils = require('./utils');
 const ItemService = require('./item');
 const itemService = new ItemService();
-const cookies = require('./cookie');
+const cookies = config.cookies;
 
 let lastList;
 const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemHash}`;
+let cookieCount = 0;
 
 (async () => {
     // const browser = await puppeteer.launch({ headless: false, delay: 1000 });
@@ -26,8 +27,6 @@ const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemH
     page.setViewport(viewPort);
 
     try {
-        await page.setCookie(...cookies);
-        await page.goto(targetUrl);
         run(browser, page);
     } catch (e) {
         console.log(e);
@@ -37,7 +36,9 @@ const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemH
 
 async function run(browser, page) {
     try {
-        await page.reload();
+        await page.deleteCookie(...cookies[cookieCount++ % cookies.length]);
+        await page.setCookie(...cookies[cookieCount % cookies.length]);
+        await page.goto(targetUrl);
         await extractPage(browser, page);
     } catch (e) {
         console.log(e);
