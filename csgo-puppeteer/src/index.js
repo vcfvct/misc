@@ -2,6 +2,7 @@
 
 const puppeteer = require('puppeteer');
 const config = require('./config');
+const play = require('./sound');
 // const sendmail = require('sendmail')({silent: true});
 const EmailService = require('./email');
 // 用sohu发送
@@ -15,6 +16,7 @@ const cookies = config.cookies;
 let lastList;
 const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemHash}`;
 let cookieCount = 0;
+let errorCount = 0;
 
 (async () => {
     // const browser = await puppeteer.launch({ headless: false, delay: 1000 });
@@ -51,6 +53,15 @@ async function run(browser, page) {
 
 async function extractPage(browser, page) {
     const listInfos = await page.evaluate(() => window.g_rgListingInfo);
+    if (!listInfos) {
+        console.log('没有获得物品列表！');
+        if (++errorCount >= config.errorCountThreshold) {
+            errorCount = 0;
+            play(config.errorSoundFilePath);
+        }
+        return;
+    }
+    errorCount = 0;
     const totalCount = Object.keys(listInfos).length;
     if (lastList && Object.keys(lastList).length > 1 && totalCount === 0) {
         console.info(`上次总数是: ${Object.keys(lastList).length}, 本次总数是： ${totalCount}, 差距大，返回！`);

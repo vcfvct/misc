@@ -41,8 +41,12 @@ config.emailContentSuffix = () => {
     return msg;
 };
 
-// 音频文件的相对路径
+// 有新物品时音频文件的相对路径
 config.soundFilePath = 'asset/hammer.mp3';
+// 连续错误时音频文件相对路径
+config.errorSoundFilePath = 'asset/hammer.mp3';
+// 连续错误次数, 超过则播放上面的声音提示
+config.errorCountThreshold = 5;
 
 // 扫描的最大最小间隔，在这个区间随机产生。如果两个值相等，就是一个固定时间间隔。
 config.interval = {
