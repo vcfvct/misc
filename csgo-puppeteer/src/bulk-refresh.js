@@ -14,6 +14,7 @@ const itemService = new ItemService();
 let lastList = {};
 const apiUrl = `http://steamcommunity.com/market/listings/730/${config.itemHash}/render?start=0&count=100&currency=23&language=english`;
 const targetUrl = `https://steamcommunity.com/market/listings/730/${config.itemHash}`;
+const newItemCache = {};
 
 // API 超时时间
 const API_TIMEOUT = 15;
@@ -44,7 +45,8 @@ async function extractPage() {
     const newList = await getItemList();
     const newItems = Utils.calcNewItems(newList, lastList);
     lastList = newList;
-    let msg = await Utils.getNotifyMsg(newItems, itemService, config.itemCriterias);
+    const newListings = cacheAndFilterNewItems(newItems);
+    let msg = await Utils.getNotifyMsg(newListings, itemService, config.itemCriterias);
     if (msg) {
         Utils.notify(config.soundFilePath, targetUrl, config.emailSubject, msg, emailService1, emailService2);
     }
@@ -54,4 +56,17 @@ async function getItemList() {
     let res = await axios.get(apiUrl, { timeout: API_TIMEOUT * 1000, header: { Cookie } });
     console.log(`${Utils.getLocaleDateTime()},拿到新的列表，共有${res.data.total_count}个物品。`);
     return res.data.listinginfo;
+}
+
+function cacheAndFilterNewItems(newItems) {
+    const dupItems = [];
+    newItems.forEach((item) => {
+        const listingid = item.listingid;
+        if (newItemCache[listingid]) {
+            dupItems.push(listingid);
+        } else {
+            newItemCache[listingid] = true;
+        }
+    });
+    return newItems.filter((item) => !dupItems.includes(item.listingid));
 }
