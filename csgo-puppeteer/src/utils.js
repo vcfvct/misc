@@ -1,4 +1,5 @@
 const play = require('./sound');
+const config = require('./config');
 
 class Utils {
     static randomIntFromInterval(min, max) {
@@ -28,7 +29,8 @@ class Utils {
             const floatInfo = await itemService.getFloat(item);
             const price = itemService.getPrice(item);
             if (itemService.isGoodItem(floatInfo, price, criterias)) {
-                msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, and 价格 : ${price} and 成本价: ${(price * 0.8).toFixed(2)} \n<br/>  检视链接：${itemService.getInspectUrl(item)} \n<br/> `;
+                msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, 价格 : ${price}, 成本: ${(price * 0.8).toFixed(2)} \n<br/> `;
+                msg += `检视链接(双击全选）: \n<br/> ${itemService.getInspectUrl(item)} \n<br/>`;
             }
         }
         return msg;
@@ -38,7 +40,8 @@ class Utils {
      */
     static notify(soundPath, targetUrl, emailSubject, msg, ...emailServices) {
         play(soundPath);
-        msg += `...点击<a href="${targetUrl}" target="_blank">这里前往</a><br/>`;
+        msg += `Steam购买地址：<a href="${targetUrl}" target="_blank">这里前往</a><br/>`;
+        msg += config.emailContentSuffix();
         // let's notify user
         emailServices.forEach((emailService) => emailService.sendEmail(emailSubject, msg));
     }

@@ -32,6 +32,15 @@ config.email163Profile = {
 // email 主题
 config.emailSubject = '有新物品了！';
 
+// email 最后部分，自定义
+config.emailContentSuffix = () => {
+    let msg = 'igxe参考价：<a href="http://igxe.com">这里前往</a> \n<br/>';
+    msg += 'C5参考价： \n<br/>';
+    msg += '磨损鉴定： \n<br/>';
+    msg += '图片鉴定： \n<br/>';
+    return msg;
+};
+
 // 音频文件的相对路径
 config.soundFilePath = 'asset/hammer.mp3';
 
