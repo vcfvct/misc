@@ -50,18 +50,7 @@ async function run(browser, page) {
 }
 
 async function extractPage(browser, page) {
-    const pageContent = await page.content();
-    const g_rgListingInfo_index_string = 'var g_rgListingInfo = ';
-    let g_rgListingInfo = pageContent.substring(pageContent.indexOf(g_rgListingInfo_index_string) + g_rgListingInfo_index_string.length, pageContent.indexOf('var g_plotPriceHistory ='));
-    const lastIndexOfSemi = g_rgListingInfo.lastIndexOf(';');
-    g_rgListingInfo = g_rgListingInfo.substring(0, lastIndexOfSemi);
-    let listInfos = {};
-    try {
-        listInfos = JSON.parse(g_rgListingInfo);
-    } catch (e) {
-        console.log('没有得到完整json，返回！');
-        return;
-    }
+    const listInfos = await page.evaluate(() => window.g_rgListingInfo);
     const totalCount = Object.keys(listInfos).length;
     if (lastList && Object.keys(lastList).length > 1 && totalCount === 0) {
         console.info(`上次总数是: ${Object.keys(lastList).length}, 本次总数是： ${totalCount}, 差距大，返回！`);
