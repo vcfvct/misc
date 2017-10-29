@@ -72,6 +72,8 @@ async function extractPage(browser, page) {
     lastList = listInfos;
     let msg = await Utils.getNotifyMsg(newItems, itemService, config.itemCriterias);
     if (msg) {
-        Utils.notify(config.soundFilePath, targetUrl, config.emailSubject, msg, emailService1, emailService2);
+        msg += `Steam购买地址：<a href="${targetUrl}" target="_blank">这里前往</a><br/>`;
+        msg += config.emailContentSuffix();
+        Utils.notify(config.soundFilePath, config.emailSubject, msg, emailService1, emailService2);
     }
 }

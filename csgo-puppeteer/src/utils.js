@@ -38,10 +38,8 @@ class Utils {
     /**
      * play sound, send email to any number of email services
      */
-    static notify(soundPath, targetUrl, emailSubject, msg, ...emailServices) {
+    static notify(soundPath, emailSubject, msg, ...emailServices) {
         play(soundPath);
-        msg += `Steam购买地址：<a href="${targetUrl}" target="_blank">这里前往</a><br/>`;
-        msg += config.emailContentSuffix();
         // let's notify user
         emailServices.forEach((emailService) => emailService.sendEmail(emailSubject, msg));
     }
