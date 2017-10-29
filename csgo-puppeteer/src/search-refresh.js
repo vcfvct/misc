@@ -59,7 +59,7 @@ async function extractPage(browser, page) {
         // console.log(item);
         itemList.push(item);
     };
-    console.log(itemList.map(item => getItemMsg(item, false)).join());
+    console.log(itemList.map(item => getItemMsg(item, false)).join('\t|||\t'));
     const increatedItems = getIncreasedItems(itemList, lastList);
     lastList = itemList;
     if (increatedItems.length) {
@@ -72,7 +72,6 @@ async function extractPage(browser, page) {
 function getIncreasedItems(newList, oldList) {
     const result = [];
     if (oldList) {
-        console.log(`new list: ${JSON.stringify(newList)}, old list: ${JSON.stringify(oldList)}`);
         newList.forEach((item) => {
             const matchedItem = oldList.find(o => item.link === o.link);
             if (matchedItem) {
