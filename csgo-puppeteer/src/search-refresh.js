@@ -62,7 +62,7 @@ async function extractPage(page) {
     for (let target of listEls) {
         const item = await page.evaluate((el) => {
             const name = el.querySelector('.market_listing_item_name').innerHTML;
-            const count = parseInt(el.querySelector('.market_listing_num_listings_qty').innerHTML);
+            const count = parseInt(el.querySelector('.market_listing_num_listings_qty').innerHTML.replace(',', ''));
             const link = el.href.replace(/(http|https):\/\//, '');
             return { name, count, link };
         }, target);
