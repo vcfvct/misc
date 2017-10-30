@@ -13,6 +13,7 @@ let lastList;
 // 搜索链接
 const targetUrl = `https://steamcommunity.com/market/search?q=&category_730_ItemSet%5B%5D=any&category_730_ProPlayer%5B%5D=any&category_730_StickerCapsule%5B%5D=any&category_730_TournamentTeam%5B%5D=any&category_730_Weapon%5B%5D=any&category_730_Exterior%5B%5D=tag_WearCategory0&category_730_Type%5B%5D=tag_Type_Hands&appid=730`;
 let cookieCount = 0;
+let errorCount = 0;
 
 (async () => {
     // const browser = await puppeteer.launch({ headless: false, delay: 1000 });
@@ -48,6 +49,15 @@ async function run(page) {
 
 async function extractPage(page) {
     const listEls = await page.$$('.market_listing_row_link');
+    if (!listEls || !listEls.length) {
+        console.log('没有获得物品列表！');
+        if (++errorCount >= config.errorCountThreshold) {
+            errorCount = 0;
+            play(config.errorSoundFilePath);
+        }
+        return;
+    }
+
     const itemList = [];
     for (let target of listEls) {
         const item = await page.evaluate((el) => {
