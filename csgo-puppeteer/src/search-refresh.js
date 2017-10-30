@@ -25,28 +25,28 @@ let cookieCount = 0;
     page.setViewport(viewPort);
 
     try {
-        run(browser, page);
+        run(page);
     } catch (e) {
         console.log(e);
     }
 })();
 
-async function run(browser, page) {
+async function run(page) {
     try {
         await page.deleteCookie(...cookies[cookieCount++ % cookies.length]);
         await page.setCookie(...cookies[cookieCount % cookies.length]);
         await page.goto(targetUrl);
-        await extractPage(browser, page);
+        await extractPage(page);
     } catch (e) {
         console.log(e);
     }
     // schedule下一个扫描
-    setTimeout(() => run(browser, page),
+    setTimeout(() => run(page),
         Utils.randomIntFromInterval(config.interval.min, config.interval.max) * 1000
     );
 }
 
-async function extractPage(browser, page) {
+async function extractPage(page) {
     const listEls = await page.$$('.market_listing_row_link');
     const itemList = [];
     for (let target of listEls) {
@@ -56,14 +56,14 @@ async function extractPage(browser, page) {
             const link = el.href.replace(/(http|https):\/\//, '');
             return { name, count, link };
         }, target);
-        // console.log(item);
         itemList.push(item);
     };
-    console.log(itemList.map(item => getItemMsg(item, false)).join('\t|||\t'));
-    const increatedItems = getIncreasedItems(itemList, lastList);
+    console.log(Utils.getLocaleDateTime());
+    console.log(itemList.map(item => getItemMsg(item, false)).join('\n'));
+    const increasedItems = getIncreasedItems(itemList, lastList);
     lastList = itemList;
-    if (increatedItems.length) {
-        const itemMsgs = increatedItems.map(item => getItemMsg(item, true));
+    if (increasedItems.length) {
+        const itemMsgs = increasedItems.map(item => getItemMsg(item, true));
         const msg = itemMsgs.join();
         Utils.notify(config.soundFilePath, config.emailSubject, msg, emailService1, emailService2);
     }
@@ -75,11 +75,11 @@ function getIncreasedItems(newList, oldList) {
         newList.forEach((item) => {
             const matchedItem = oldList.find(o => item.link === o.link);
             if (matchedItem) {
-                if (matchedItem.count > item.count) {
+                if (matchedItem.count < item.count) {
                     result.push(item);
                 }
             } else {
-                console.log(`new item: ${JSON.stringify(item)}`);
+                console.log(`新物品: ${JSON.stringify(item)}`);
                 result.push(item);
             }
         });
