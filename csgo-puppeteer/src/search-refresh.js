@@ -7,6 +7,7 @@ const EmailService = require('./email');
 const emailService1 = new EmailService('sohu');
 const emailService2 = new EmailService('163');
 const Utils = require('./utils');
+const play = require('./sound');
 const cookies = config.cookies;
 
 let lastList;
@@ -74,7 +75,7 @@ async function extractPage(page) {
     lastList = itemList;
     if (increasedItems.length) {
         const itemMsgs = increasedItems.map(item => getItemMsg(item, true));
-        const msg = itemMsgs.join();
+        const msg = `发现时间: ${Utils.getLocaleDateTime()} \n<br/> ${itemMsgs.join('\n<br/>')}`;
         Utils.notify(config.soundFilePath, config.emailSubject, msg, emailService1, emailService2);
     }
 }
@@ -99,6 +100,6 @@ function getIncreasedItems(newList, oldList) {
 
 function getItemMsg(item, includeLink) {
     let msg = `名称: ${item.name}, 数量: ${item.count}`;
-    includeLink && (msg += `, 链接: <a href="${item.link}">点击这里</a> \n<br/>`);
+    includeLink && (msg += `, 链接: <a href="https://${item.link}" target="_blank">点击这里</a>`);
     return msg;
 }
