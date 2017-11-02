@@ -1,7 +1,7 @@
 module.exports = [
     {
         "domain": ".steamcommunity.com",
-        "expirationDate": 1571319222,
+        "expirationDate": 1572665196,
         "hostOnly": false,
         "httpOnly": false,
         "name": "_ga",
@@ -10,12 +10,12 @@ module.exports = [
         "secure": false,
         "session": false,
         "storeId": "0",
-        "value": "GA1.2.948244668.1508246987",
+        "value": "GA1.2.1017531141.1502158701",
         "id": 1
     },
     {
         "domain": ".steamcommunity.com",
-        "expirationDate": 1508333622,
+        "expirationDate": 1509679596,
         "hostOnly": false,
         "httpOnly": false,
         "name": "_gid",
@@ -24,8 +24,22 @@ module.exports = [
         "secure": false,
         "session": false,
         "storeId": "0",
-        "value": "GA1.2.1056560836.1508246987",
+        "value": "GA1.2.1766979307.1509591546",
         "id": 2
+    },
+    {
+        "domain": "steamcommunity.com",
+        "expirationDate": 1537913090.080623,
+        "hostOnly": true,
+        "httpOnly": false,
+        "name": "recentlyVisitedAppHubs",
+        "path": "/",
+        "sameSite": "no_restriction",
+        "secure": false,
+        "session": false,
+        "storeId": "0",
+        "value": "730",
+        "id": 3
     },
     {
         "domain": "steamcommunity.com",
@@ -37,8 +51,22 @@ module.exports = [
         "secure": false,
         "session": true,
         "storeId": "0",
-        "value": "a07a3e307d4f7c1b153aaebe",
-        "id": 3
+        "value": "9d657d1d14d7fca812c4584f",
+        "id": 4
+    },
+    {
+        "domain": "steamcommunity.com",
+        "expirationDate": 1663509589.766632,
+        "hostOnly": true,
+        "httpOnly": false,
+        "name": "Steam_Language",
+        "path": "/",
+        "sameSite": "no_restriction",
+        "secure": false,
+        "session": false,
+        "storeId": "0",
+        "value": "schinese",
+        "id": 5
     },
     {
         "domain": "steamcommunity.com",
@@ -50,8 +78,8 @@ module.exports = [
         "secure": false,
         "session": true,
         "storeId": "0",
-        "value": "CN%7Cb4251296cf74b11495ad340108a3ce1c",
-        "id": 4
+        "value": "US%7Cef64668092e403288d797dde08cd01d9",
+        "id": 6
     },
     {
         "domain": "steamcommunity.com",
@@ -63,8 +91,8 @@ module.exports = [
         "secure": false,
         "session": true,
         "storeId": "0",
-        "value": "76561198429189768%7C%7C6B95537C896320CE398E14A0BD4282140992357E",
-        "id": 5
+        "value": "76561198423401301%7C%7C961A52D6CB9EC556F4FF9A5328CCD27C59D07CD8",
+        "id": 7
     },
     {
         "domain": "steamcommunity.com",
@@ -76,40 +104,54 @@ module.exports = [
         "secure": true,
         "session": true,
         "storeId": "0",
-        "value": "76561198429189768%7C%7C860853C9FA451F3C1F171D8C683C9736CD0D1353",
-        "id": 6
+        "value": "76561198423401301%7C%7C5A36250BC5DDA16636E46B43CE91A54F3F61DF9E",
+        "id": 8
     },
     {
         "domain": "steamcommunity.com",
-        "expirationDate": 1823607055.910641,
+        "expirationDate": 1821014595.549751,
         "hostOnly": true,
         "httpOnly": true,
-        "name": "steamMachineAuth76561198429189768",
+        "name": "steamMachineAuth76561198412716157",
         "path": "/",
         "sameSite": "no_restriction",
         "secure": true,
         "session": false,
         "storeId": "0",
-        "value": "9BFF2D5290F9CB0B94E30F08C8E0EF84092176EE",
-        "id": 7
+        "value": "CBAD730388DACD5A42435060F2E1600CBE4C8E57",
+        "id": 9
     },
     {
         "domain": "steamcommunity.com",
-        "expirationDate": 1510839114.981028,
+        "expirationDate": 1822255388.109242,
         "hostOnly": true,
-        "httpOnly": false,
-        "name": "steamRememberLogin",
+        "httpOnly": true,
+        "name": "steamMachineAuth76561198417530928",
         "path": "/",
         "sameSite": "no_restriction",
-        "secure": false,
+        "secure": true,
         "session": false,
         "storeId": "0",
-        "value": "76561198429189768%7C%7C09c6e22845dd208903204e66d2b1eaae",
-        "id": 8
+        "value": "1E3B7049055DA1108C2512013C87226DB375B009",
+        "id": 10
     },
     {
         "domain": "steamcommunity.com",
-        "expirationDate": 1539783222,
+        "expirationDate": 1822274784.014188,
+        "hostOnly": true,
+        "httpOnly": true,
+        "name": "steamMachineAuth76561198423401301",
+        "path": "/",
+        "sameSite": "no_restriction",
+        "secure": true,
+        "session": false,
+        "storeId": "0",
+        "value": "BBE67E0E6457AF57F7F1A3734753931F33506573",
+        "id": 11
+    },
+    {
+        "domain": "steamcommunity.com",
+        "expirationDate": 1541129196,
         "hostOnly": true,
         "httpOnly": false,
         "name": "timezoneOffset",
@@ -118,8 +160,8 @@ module.exports = [
         "secure": false,
         "session": false,
         "storeId": "0",
-        "value": "28800,0",
-        "id": 9
+        "value": "-14400,0",
+        "id": 12
     },
     {
         "domain": "steamcommunity.com",
@@ -131,7 +173,7 @@ module.exports = [
         "secure": false,
         "session": true,
         "storeId": "0",
-        "value": "%7B%22allowed%22%3A0%2C%22reason%22%3A2216%2C%22allowed_at_time%22%3A1509626656%2C%22steamguard_required_days%22%3A15%2C%22sales_this_year%22%3A0%2C%22max_sales_per_year%22%3A200%2C%22forms_requested%22%3A0%2C%22new_device_cooldown_days%22%3A7%2C%22time_checked%22%3A1508247170%7D",
-        "id": 10
+        "value": "%7B%22allowed%22%3A0%2C%22reason%22%3A16424%2C%22allowed_at_time%22%3A1512183558%2C%22steamguard_required_days%22%3A15%2C%22sales_this_year%22%3A0%2C%22max_sales_per_year%22%3A200%2C%22forms_requested%22%3A0%2C%22new_device_cooldown_days%22%3A7%2C%22time_checked%22%3A1509591558%7D",
+        "id": 13
     }
 ];

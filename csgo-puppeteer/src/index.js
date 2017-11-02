@@ -19,8 +19,8 @@ let cookieCount = 0;
 let errorCount = 0;
 
 (async () => {
-    // const browser = await puppeteer.launch({ headless: false, delay: 1000 });
-    const browser = await puppeteer.launch({ headless: true, args: ['--disable-timeouts-for-profiling'] });
+    const browser = await puppeteer.launch({ headless: false, delay: 1000 });
+    // const browser = await puppeteer.launch({ headless: true, args: ['--disable-timeouts-for-profiling'] });
     const page = await browser.newPage();
     const viewPort = {
         width: 1280,
@@ -40,6 +40,7 @@ async function run(browser, page) {
     try {
         await page.deleteCookie(...cookies[cookieCount++ % cookies.length]);
         await page.setCookie(...cookies[cookieCount % cookies.length]);
+        console.log(await page.cookies());
         await page.goto(targetUrl);
         await extractPage(browser, page);
     } catch (e) {

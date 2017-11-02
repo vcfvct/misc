@@ -19,8 +19,8 @@ let errorCount = 0;
 const excludeKeywords = ['菱背蛇纹', '风之力-九头蛇弓'];
 
 (async () => {
-    // const browser = await puppeteer.launch({ headless: false, delay: 1000 });
-    const browser = await puppeteer.launch({ headless: true, args: ['--disable-timeouts-for-profiling'] });
+    const browser = await puppeteer.launch({ headless: false, delay: 1000 });
+    // const browser = await puppeteer.launch({ headless: true, args: ['--disable-timeouts-for-profiling'] });
     const page = await browser.newPage();
     const viewPort = {
         width: 1280,
