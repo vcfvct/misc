@@ -79,6 +79,12 @@ async function extractPage(page) {
         const itemMsgs = increasedItems.map(item => getItemMsg(item, true));
         const msg = `发现时间: ${Utils.getLocaleDateTime()} \n<br/> ${itemMsgs.join('\n<br/>')}`;
         Utils.notify(config.soundFilePath, config.emailSubject, msg, emailService1, emailService2);
+
+        // TODO inseat record to mongo so that the scan machine could pick up. 
+        // const mongo = Utils.getMongoDB().collection('csgo');
+        // for (let item of increasedItems) {
+        //     await mongo.insert(item);
+        // }
     }
 }
 

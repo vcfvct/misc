@@ -47,6 +47,15 @@ class Utils {
     static getCookieString(cookies) {
         return cookies.reduce((str, cookie) => str + `${cookie.name}=${cookie.value};`, '');
     }
+
+    /**
+     * returns a promise of mongo DB instance.
+     */
+    static async getMongoDB() {
+        const mongoClient = require('mongodb').MongoClient;
+        const url = 'mongodb://csgo:csgo@ds137261.mlab.com:37261/hymn';
+        return mongoClient.connect(url);
+    }
 }
 
 module.exports = Utils;
