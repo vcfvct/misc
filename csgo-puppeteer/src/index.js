@@ -9,8 +9,6 @@ const EmailService = require('./email');
 const emailService1 = new EmailService('sohu');
 const emailService2 = new EmailService('163');
 const Utils = require('./utils');
-const ItemService = require('./item');
-const itemService = new ItemService();
 const cookies = config.cookies;
 
 let lastList;
@@ -70,7 +68,7 @@ async function extractPage(page) {
     console.log(`${Utils.getLocaleDateTime()} -- 本轮scan物品数： ${totalCount}`);
     const newItems = Utils.calcNewItems(listInfos, lastList);
     lastList = listInfos;
-    let msg = await Utils.getNotifyMsg(newItems, itemService, config.itemCriterias);
+    let msg = await Utils.getNotifyMsg(newItems, config.itemCriterias);
     if (msg) {
         msg += `Steam购买地址：<a href="${targetUrl}" target="_blank">这里前往</a><br/>`;
         msg += config.emailContentSuffix();

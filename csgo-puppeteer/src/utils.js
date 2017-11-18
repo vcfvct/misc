@@ -1,5 +1,5 @@
 const play = require('./sound');
-const config = require('./config');
+const ItemService = require('./item');
 
 class Utils {
     static randomIntFromInterval(min, max) {
@@ -23,14 +23,14 @@ class Utils {
         return result;
     }
 
-    static async getNotifyMsg(newItems, itemService, criterias) {
+    static async getNotifyMsg(newItems, criterias) {
         let msg = '';
         for (let item of newItems) {
-            const floatInfo = await itemService.getFloat(item);
-            const price = itemService.getPrice(item);
-            if (itemService.isGoodItem(floatInfo, price, criterias)) {
+            const floatInfo = await ItemService.getFloat(item);
+            const price = ItemService.getPrice(item);
+            if (ItemService.isGoodItem(floatInfo, price, criterias)) {
                 msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, 价格 : ${price}, 成本: ${(price * 0.8).toFixed(2)} \n<br/> `;
-                msg += `检视链接(双击全选）: \n<br/> ${itemService.getInspectUrl(item)} \n<br/>`;
+                msg += `检视链接(双击全选）: \n<br/> ${ItemService.getInspectUrl(item)} \n<br/>`;
             }
         }
         return msg;

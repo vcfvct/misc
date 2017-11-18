@@ -9,8 +9,6 @@ const emailService2 = new EmailService('163');
 const Utils = require('./utils');
 const play = require('./sound');
 const cookies = config.cookies;
-const ItemService = require('./item');
-const itemService = new ItemService();
 
 let lastList;
 // 搜索链接
@@ -99,7 +97,7 @@ async function extractPage() {
                 } else {
                     if (itemCount >= item.count) {
                         const newItems = Utils.calcNewItems(listInfos, lastList);
-                        let msg = await Utils.getNotifyMsg(newItems, itemService, config.itemCriterias);
+                        let msg = await Utils.getNotifyMsg(newItems, config.itemCriterias);
                         if (msg) {
                             msg += `Steam购买地址：<a href="${targetUrl}" target="_blank">这里前往</a><br/>`;
                             msg += config.emailContentSuffix();
