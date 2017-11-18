@@ -40,7 +40,6 @@ async function run(browser, page) {
     try {
         await page.deleteCookie(...cookies[cookieCount++ % cookies.length]);
         await page.setCookie(...cookies[cookieCount % cookies.length]);
-        console.log(await page.cookies());
         await page.goto(targetUrl);
         await extractPage(page);
     } catch (e) {
