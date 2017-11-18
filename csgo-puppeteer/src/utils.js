@@ -56,6 +56,14 @@ class Utils {
         const url = 'mongodb://csgo:csgo@ds137261.mlab.com:37261/hymn';
         return mongoClient.connect(url);
     }
+
+    /**
+     * Be sure to use with 'await'
+     * @param {*} ms 
+     */
+    static sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 }
 
 module.exports = Utils;

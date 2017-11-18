@@ -42,7 +42,7 @@ async function run(browser, page) {
         await page.setCookie(...cookies[cookieCount % cookies.length]);
         console.log(await page.cookies());
         await page.goto(targetUrl);
-        await extractPage(browser, page);
+        await extractPage(page);
     } catch (e) {
         console.log(e);
     }
@@ -52,7 +52,7 @@ async function run(browser, page) {
     );
 }
 
-async function extractPage(browser, page) {
+async function extractPage(page) {
     const listInfos = await page.evaluate(() => window.g_rgListingInfo);
     if (!listInfos) {
         console.log('没有获得物品列表！');
@@ -78,3 +78,5 @@ async function extractPage(browser, page) {
         Utils.notify(config.soundFilePath, config.emailSubject, msg, emailService1, emailService2);
     }
 }
+
+module.exports = extractPage;

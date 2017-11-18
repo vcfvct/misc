@@ -4,7 +4,7 @@ const utils = require('../src/utils');
 
 (async () => {
     const db = await utils.getMongoDB();
-    const csgo = db.collection('csgo');
+    const csgo = db.collection('csgo1');
     const item = {
         name: `好东西${getRandomInt()}`,
         count: getRandomInt(),
