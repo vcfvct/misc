@@ -42,6 +42,7 @@ async function run(browser, page) {
         await extractPage(page);
     } catch (e) {
         console.log(e);
+        onError();
     }
     // schedule下一个扫描
     setTimeout(() => run(browser, page),
@@ -53,10 +54,7 @@ async function extractPage(page) {
     const listInfos = await page.evaluate(() => window.g_rgListingInfo);
     if (!listInfos) {
         console.log('没有获得物品列表！');
-        if (++errorCount >= config.errorCountThreshold) {
-            errorCount = 0;
-            play(config.errorSoundFilePath);
-        }
+        onError();
         return;
     }
     errorCount = 0;
@@ -73,6 +71,13 @@ async function extractPage(page) {
         msg += `Steam购买地址：<a href="${targetUrl}" target="_blank">这里前往</a><br/>`;
         msg += config.emailContentSuffix();
         Utils.notify(config.soundFilePath, config.emailSubject, msg, emailService1, emailService2);
+    }
+}
+
+function onError() {
+    if (++errorCount >= config.errorCountThreshold) {
+        errorCount = 0;
+        play(config.errorSoundFilePath);
     }
 }
 
