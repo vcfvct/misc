@@ -54,7 +54,7 @@ config.interval = {
     max: 15
 };
 
-// 可以规定： 1. 最低价格 2, 磨损区间， 3.磨损区间+价格区间
+// 可以规定： 1. 最低价格 2, 磨损区间， 3.磨损区间+价格区间 4.皮肤编号
 config.itemCriterias = [
     {
         float: {
@@ -76,6 +76,9 @@ config.itemCriterias = [
             max: 1000,
             min: 2000
         }
+    },
+    {
+        paintIndexes: [359, 393, 602, 649, 701]
     }
 ];
 

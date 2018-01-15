@@ -1,4 +1,4 @@
-const axios = require('axios');
+const ItemServiceaxios = require('axios');
 
 class ItemService {
     static getInspectUrl(itemInfo) {
@@ -17,21 +17,31 @@ class ItemService {
         return `https://api.csgofloat.com:1738/?m=${paramM}&a=${paramA}&d=${paramD}`;
     }
 
-    static async getFloat(itemInfo) {
+    static async getItemDetail(itemInfo) {
         const queryUrl = ItemService.getQueryUrl(itemInfo);
         const floatHolder = await axios.get(queryUrl);
-        return floatHolder.data.iteminfo.floatvalue;
+        return floatHolder.data.iteminfo;
+    }
+
+    static getFloat(itemDetail) {
+        return itemDetail.floatvalue;
+    }
+
+    static getPaintIndex(itemDetail) {
+        return itemDetail.paintindex;
     }
 
     static getPrice(itemInfo) {
         return (itemInfo.converted_price + itemInfo.converted_fee) / 100;
     }
 
-    static isGoodItem(float, price, criterias) {
+    static isGoodItem(criterias, float, price, paintIndex) {
         let result = false;
         if (criterias.length) {
             for (let criteria of criterias) {
-                if (ItemService.isInRange(criteria.price, price) && ItemService.isInRange(criteria.float, float)) {
+                if ( ItemService.isInRange(criteria.price, price)
+                    && ItemService.isInRange(criteria.float, float)
+                    && ItemService.isInCriteriaArray(criteria.paintIndexes, paintIndex)) {
                     result = true;
                     break;
                 }
@@ -43,8 +53,15 @@ class ItemService {
         return result;
     }
 
+    static isInCriteriaArray(array, element) {
+        if(!array || !array.length) {
+            return true;
+        }
+        return array.includes(element);
+    }
+
     static isInRange(objectMinMax, number) {
-        if (!objectMinMax || !number) {
+        if (!objectMinMax) {
             return true;
         }
         const min = objectMinMax.min ? objectMinMax.min : -1;

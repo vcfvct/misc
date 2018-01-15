@@ -25,10 +25,13 @@ class Utils {
 
     static async getNotifyMsg(newItems, criterias) {
         let msg = '';
+
         for (let item of newItems) {
-            const floatInfo = await ItemService.getFloat(item);
+            const itemDetail = await ItemService.getItemDetail(item);
+            const floatInfo = ItemService.getFloat(itemDetail);
+            const paintIndex = ItemService.getPaintIndex(itemDetail);
             const price = ItemService.getPrice(item);
-            if (ItemService.isGoodItem(floatInfo, price, criterias)) {
+            if (ItemService.isGoodItem(criterias, floatInfo, price, paintIndex)) {
                 msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, 价格 : ${price}, 成本: ${(price * 0.8).toFixed(2)} \n<br/> `;
                 msg += `检视链接(双击全选）: \n<br/> ${ItemService.getInspectUrl(item)} \n<br/>`;
             }
@@ -59,7 +62,7 @@ class Utils {
 
     /**
      * Be sure to use with 'await'
-     * @param {*} ms 
+     * @param {*} ms
      */
     static sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
