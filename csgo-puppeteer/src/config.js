@@ -79,6 +79,9 @@ config.itemCriterias = [
     },
     {
         paintIndexes: [359, 393, 602, 649, 701]
+    },
+    {
+        paintSeeds: []
     }
 ];
 

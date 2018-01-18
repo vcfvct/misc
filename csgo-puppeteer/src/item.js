@@ -1,4 +1,4 @@
-const ItemServiceaxios = require('axios');
+const axios = require('axios');
 
 class ItemService {
     static getInspectUrl(itemInfo) {
@@ -31,17 +31,22 @@ class ItemService {
         return itemDetail.paintindex;
     }
 
+    static getPaintSeed(itemDetail) {
+        return itemDetail.paintseed;
+    }
+
     static getPrice(itemInfo) {
         return (itemInfo.converted_price + itemInfo.converted_fee) / 100;
     }
 
-    static isGoodItem(criterias, float, price, paintIndex) {
+    static isGoodItem(criterias, float, price, paintIndex, paintSeed) {
         let result = false;
         if (criterias.length) {
             for (let criteria of criterias) {
-                if ( ItemService.isInRange(criteria.price, price)
-                    && ItemService.isInRange(criteria.float, float)
-                    && ItemService.isInCriteriaArray(criteria.paintIndexes, paintIndex)) {
+                if (ItemService.isInRange(criteria.price, price) &&
+                    ItemService.isInRange(criteria.float, float) &&
+                    ItemService.isInCriteriaArray(criteria.paintIndexes, paintIndex) &&
+                    ItemService.isInCriteriaArray(criteria.paintSeeds, paintSeed)) {
                     result = true;
                     break;
                 }
@@ -54,7 +59,7 @@ class ItemService {
     }
 
     static isInCriteriaArray(array, element) {
-        if(!array || !array.length) {
+        if (!array || !array.length) {
             return true;
         }
         return array.includes(element);
