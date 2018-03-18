@@ -62,6 +62,7 @@ class ItemService {
         if (!array || !array.length) {
             return true;
         }
+        console.log(`checking ${element} inside ${array}`);
         return array.includes(element);
     }
 
