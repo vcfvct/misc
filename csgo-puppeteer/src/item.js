@@ -62,7 +62,7 @@ class ItemService {
         if (!array || !array.length) {
             return true;
         }
-        console.log(`checking ${element} inside ${array}`);
+        console.log(`checking ${element} against ${array} and result is : ${array.includes(element)}`);
         return array.includes(element);
     }
 
