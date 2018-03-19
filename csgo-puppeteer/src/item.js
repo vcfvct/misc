@@ -54,7 +54,7 @@ class ItemService {
         } else {
             result = true;
         }
-
+        console.log(`get ${result} for criteria: ${JSON.stringify(criterias, null, 2)}, paintIndex; ${paintIndex}. paintSeed: ${paintSeed}`);
         return result;
     }
 
