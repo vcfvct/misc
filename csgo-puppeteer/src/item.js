@@ -47,6 +47,7 @@ class ItemService {
                     ItemService.isInRange(criteria.float, float) &&
                     ItemService.isInCriteriaArray(criteria.paintIndexes, paintIndex) &&
                     ItemService.isInCriteriaArray(criteria.paintSeeds, paintSeed)) {
+                    console.log('~~~~~~~~~~~~~~~inside the true assignment, will break from the loop and return true~~~~~~~~~~');
                     result = true;
                     break;
                 }
