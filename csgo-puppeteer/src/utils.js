@@ -33,7 +33,7 @@ class Utils {
             const paintSeed = ItemService.getPaintSeed(itemDetail);
             const price = ItemService.getPrice(item);
             if (ItemService.isGoodItem(criterias, floatInfo, price, paintIndex, paintSeed)) {
-                msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, 价格 : ${price}, 成本: ${(price * 0.8).toFixed(2)} \n<br/> `;
+                msg += `${Utils.getLocaleDateTime()} -- 磨损值： ${floatInfo}, 价格 : ${price}, 成本: ${(price * 0.8).toFixed(2)}, 标签：${paintIndex} \n<br/> `;
                 msg += `检视链接(双击全选）: \n<br/> ${ItemService.getInspectUrl(item)} \n<br/>`;
             }
         }
