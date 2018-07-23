@@ -5,11 +5,12 @@ sudo apt-get update -y
 sudo apt-get install fish -y
 
 # nodejs
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-sudo apt-get install -y nodejs
+# curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+# sudo apt-get install -y nodejs
 
 # Apache
-sudo apt-get install -y  apache2
+# sudo apt-get install -y  apache2
+
 # Nginx https://www.linuxbabe.com/linux-server/install-nginx-mariadb-php7-lemp-stack-ubuntu-16-04-lts
 sudo apt install nginx
 sudo systemctl enable nginx
@@ -41,7 +42,7 @@ sudo chown www-data:www-data /var/www/html/ -R
 # Mysql client
 sudo apt-get install mysql-client
 mysql -h RDS-HOST -P 3306 -u cccgadm -p
-mysql -h mysql-drupal.c7lqc6fawrjq.us-east-1.rds.amazonaws.com -P 3306 -u cccgadm -p cccgerm < cccgerm.sql 
+mysql -h mysql-drupal.c7lqc6fawrjq.us-east-1.rds.amazonaws.com -P 3306 -u cccgadm -p xxxxxx < cccgerm.sql 
 # drupal mysql connection info
 vi /var/www/html/sites/default/settings.php
 
@@ -49,8 +50,8 @@ vi /var/www/html/sites/default/settings.php
 aws ec2 modify-instance-attribute --instance-id i-0396d712353dd73c4 --block-device-mappings "[{\"DeviceName\": \"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":false}}]" --region us-east-1
 
 # drupal files in S3
-aws s3 cp s3://cccg-drupal-fs/site.tgz site.tgz
-tar -xvf site.tgz --directory /var/www/html
+# aws s3 cp s3://cccg-drupal-fs/site.tgz site.tgz
+# tar -xvf site.tgz --directory /var/www/html
 
 # add cccgadm to nginx 'www-data' group and modify the 'file_attach' directory to have 'w' for the group
 usermod -a -G www-data cccgadm
