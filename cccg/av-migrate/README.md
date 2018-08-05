@@ -1,9 +1,13 @@
 ## Files for EBS to S3
-* this need to be done by manually into each year folder in s3
+* this need to be done by manually upload all legacy audio/video into s3 with all the folder-structure/path unchanged so that we can just replace the `public://` with `https://xxxx` in DB.
 
 ## drupal db change
-* Modify the `file_managed` table file `uri` column from something like `public://audio/2015/20180211.mp3` to `https://www.cccgermantown.org/s3/audio/sermon/2018/20180729.mp3`
+* Modify the `file_managed` table file `uri` column from something like `public://audio/2015/20180211.mp3` to `https://www.cccgermantown.org/s3/audio/2015/20180211.mp3`
   * may need a small java/nodejs script to manipuate as the file name pattern varies.
+  * for video, replace `public://` with the `https://` stuff
+  * for audio
+    * uri start with `public://audio`, same thing , replace with https cccg stuff.
+    * uri start with `public://20xxx` means it is not in the audio directory. These files will be uploaded the s3 audio 2015 folder so uri value should be `https:wwww.cccgermantown.org/s3/audio/2015/20xxxx`.
 * after file uri change, need to clean the cache in `cache_field` table for those `cid='field:node:xxxx'`
 
 ## Gerneral DB
