@@ -35,7 +35,7 @@ const CCCG_PREFIX = 'https://www.cccgermantown.org/s3/';
     // const rows = await query(`select count(*) from ${FILE_TABLE}`);
     const audioSqls: Array<string> = await handleAudio();
     const videoSqls: Array<string> = await handleVideo();
-    const fileContent: string = `--- audio\n ${audioSqls.join('\n')} \n\n--- videos\n\n videoSqls.join('\n')`;
+    const fileContent: string = `--- audio\n${audioSqls.join('\n')} \n\n--- videos\n\n${videoSqls.join('\n')}`;
     fs.writeFileSync('./result.sql', fileContent, {encoding: 'utf-8'});
   } finally {
     conn.end();
@@ -57,7 +57,7 @@ async function handleAudio(): Promise<Array<string>> {
 async function handleVideo(): Promise<Array<string>> {
   const videos: FileTuple[] = await query(`SELECT fid, uri FROM ${FILE_TABLE} WHERE filemime='video/mp4'`);
   return videos.map((video: FileTuple) => {
-    const newURI = video.uri.replace(`${PUBLIC_PREFIX}video/`, `${CCCG_PREFIX}videos/`);
+    const newURI = video.uri.replace(`${PUBLIC_PREFIX}video/2014`, `${CCCG_PREFIX}videos/sermon/legacy`);
     return `UPDATE ${FILE_TABLE} SET uri='${newURI}' WHERE fid=${video.fid};`;
   })
  
