@@ -1,5 +1,7 @@
 ## Files for EBS to S3
 * this need to be done by manually upload all legacy audio/video into s3 with all the folder-structure/path unchanged so that we can just replace the `public://` with `https://xxxx` in DB.
+* top level audio file will be moved to `/audio/2015/`: `aws s3 cp ./ s3://cccg-media/audio/2015/ --exclude "*" --include "20*.mp3" --recursive --storage-class STANDARD_IA --dryrun`
+* video copy to a legacy folder: `aws s3 cp ./ s3://cccg-media/videos/sermon/legacy/ --recursive --storage-class STANDARD_IA --dryrun`
 
 ## drupal db change
 * Modify the `file_managed` table file `uri` column from something like `public://audio/2015/20180211.mp3` to `https://www.cccgermantown.org/s3/audio/2015/20180211.mp3`
@@ -9,6 +11,7 @@
     * uri start with `public://audio`, same thing , replace with https cccg stuff.
     * uri start with `public://20xxx` means it is not in the audio directory. These files will be uploaded the s3 audio 2015 folder so uri value should be `https:wwww.cccgermantown.org/s3/audio/2015/20xxxx`.
 * after file uri change, need to clean the cache in `cache_field` table for those `cid='field:node:xxxx'`
+  * to remove all cached fields, just do `TRUNCATE cache_field;`
 
 ## Gerneral DB
 * should be able to clear all the cache\_xxx tables, which has significant size impact.
