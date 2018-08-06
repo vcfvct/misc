@@ -13,8 +13,8 @@
 * after file uri change, need to clean the cache in `cache_field` table for those `cid='field:node:xxxx'`
   * to remove all cached fields, just do `TRUNCATE cache_field;`
 
-## Gerneral DB
+## General DB
 * should be able to clear all the cache\_xxx tables, which has significant size impact.
-* `field_data_body` table has all the pod cast body content in its `body_value` column, `entity\_id` is the identifier
+* `field_data_body` table has all the pod cast body content in its `body_value` column, `entity_id` is the identifier
 * `field_data_audio` table has the mapping for `entity_id` with `field_oc_audio_fid` which is the foreign key reference to the `file_managed` table.
 * all the revision info is saved in the `field_revision_xxx` tables so it still can roll back to older versions if needed.
