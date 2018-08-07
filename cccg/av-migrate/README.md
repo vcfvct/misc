@@ -18,3 +18,4 @@
 * `field_data_body` table has all the pod cast body content in its `body_value` column, `entity_id` is the identifier
 * `field_data_audio` table has the mapping for `entity_id` with `field_oc_audio_fid` which is the foreign key reference to the `file_managed` table.
 * all the revision info is saved in the `field_revision_xxx` tables so it still can roll back to older versions if needed.
+* was getting `linux-headers-aws : Depends: linux-headers-4.4.0-1063-aws but it is not going to be installed` error when try to install mysql-server locally, have to install the above thing first.
