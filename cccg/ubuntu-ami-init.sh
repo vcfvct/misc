@@ -41,8 +41,13 @@ sudo chown www-data:www-data /var/www/html/ -R
 
 # Mysql client
 sudo apt-get install mysql-client
+# Mysql Server(if host in EC2)
+sudo apt install mysql-server
+# Mysql export
+mysqldump -h 127.0.0.1 -u root -p cccgerm --compress > 20180808.sql
+# Mysql connect/import
 mysql -h RDS-HOST -P 3306 -u cccgadm -p
-mysql -h mysql-drupal.c7lqc6fawrjq.us-east-1.rds.amazonaws.com -P 3306 -u cccgadm -p xxxxxx < cccgerm.sql 
+mysql -h mysql-drupal.c7lqc6fawrjq.us-east-1.rds.amazonaws.com -P 3306 -u cccgadm -p DB_NAME < cccgerm.sql 
 # drupal mysql connection info
 vi /var/www/html/sites/default/settings.php
 
