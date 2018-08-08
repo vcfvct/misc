@@ -1,0 +1,54 @@
+server {
+  listen 80;
+  listen [::]:80;
+  server_name cccgermantown.org www.cccgermantown.org;
+  root /var/www/html/;
+  index index.php index.html index.htm index.nginx-debian.html;
+
+  location ^~ /s3/ {
+    rewrite /s3/(.*) /$1 break;
+    proxy_pass http://cccg-media.s3.amazonaws.com;
+
+    proxy_set_header Host 'cccg-media.s3.amazonaws.com';
+    proxy_set_header Authorization '';
+    proxy_hide_header x-amz-id-2;
+    proxy_hide_header x-amz-storage-class;
+    proxy_hide_header x-amz-request-id;
+    proxy_hide_header Set-Cookie;
+    proxy_ignore_headers "Set-Cookie";
+
+  }
+
+  location / {
+    try_files $uri $uri/ =404;
+  }
+
+  error_page 404 /404.html;
+  error_page 500 502 503 504 /50x.html;
+
+  location = /50x.html {
+    root /usr/share/nginx/html;
+  }
+
+  location ~ \.php$ {
+    fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    include fastcgi_params;
+    include snippets/fastcgi-php.conf;
+  }
+
+  location ~ /\.ht {
+    deny all;
+  }
+
+  listen 443 ssl; # managed by Certbot
+  ssl_certificate /etc/letsencrypt/live/cccgermantown.org/fullchain.pem; # managed by Certbot
+  ssl_certificate_key /etc/letsencrypt/live/cccgermantown.org/privkey.pem; # managed by Certbot
+  include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+
+  if ($scheme != "https") {
+      return 301 https://$host$request_uri;
+  } # managed by Certbot
+
+  ssl_dhparam /etc/ssl/certs/dhparam.pem;
+}
