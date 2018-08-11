@@ -4,12 +4,13 @@ sudo add-apt-repository ppa:fish-shell/nightly-master -y
 sudo apt-get update -y
 sudo apt-get install fish -y
 
-# nodejs
-# curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-# sudo apt-get install -y nodejs
+# aws cli
+curl -O https://bootstrap.pypa.io/get-pip.py
+pip install awscli --upgrade --user
 
-# Apache
-# sudo apt-get install -y  apache2
+# sync Drupal FS, check status with 'jobs'
+nohup scp -r cccgadm@cccgermantown.org:/var/www/html /var/www/html/ &
+jobs
 
 # Nginx https://www.linuxbabe.com/linux-server/install-nginx-mariadb-php7-lemp-stack-ubuntu-16-04-lts
 sudo apt install nginx
@@ -52,7 +53,7 @@ mysql -h mysql-drupal.c7lqc6fawrjq.us-east-1.rds.amazonaws.com -P 3306 -u cccgad
 vi /var/www/html/sites/default/settings.php
 
 # keep EBS when ec2 terminated.
-aws ec2 modify-instance-attribute --instance-id i-0396d712353dd73c4 --block-device-mappings "[{\"DeviceName\": \"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":false}}]" --region us-east-1
+aws ec2 modify-instance-attribute --instance-id i-xxxxxxx --block-device-mappings "[{\"DeviceName\": \"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":false}}]" --region us-east-1
 
 # drupal files in S3
 # aws s3 cp s3://cccg-drupal-fs/site.tgz site.tgz
