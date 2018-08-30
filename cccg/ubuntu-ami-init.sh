@@ -64,9 +64,10 @@ sudo adduser cccgadm
 usermod -a -G www-data cccgadm
 usermod -aG sudo cccgadm
 chmod 755 /var/www/html/sites/default/files/file_attach
-# sudo vi /etc/sudoers and add 'cccgadm ALL=(ALL) NOPASSWD:ALL'
-# To add public key, add the key to '/home/cccgadm/.ssh/authorized_keys'
+# sudo vi /etc/sudoers and add 'cccgadm ALL=(ALL) NOPASSWD:ALL' below the line `%sudo  ALL=(ALL:ALL) ALL`
+# To add public key, add the key to '/home/cccgadm/.ssh/authorized_keys', double check the key-string should be one line
 chown -R cccgadm:cccgadm /home/cccgadm/.ssh
+chmod 600 /home/cccgadm/.ssh/authorized_keys
 
 
 ### SSL part [HERE](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
