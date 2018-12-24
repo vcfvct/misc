@@ -12,7 +12,7 @@ export class EmailService {
   @Inject(EmailProfileInjectionToken)
   emailProfile: EmailProfile;
 
-  _transporter: Transporter;
+  private _transporter: Transporter;
 
   get transporter(): Transporter {
     if (!this._transporter) {

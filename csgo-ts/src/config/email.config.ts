@@ -1,3 +1,14 @@
+export const TencentEmail1: EmailProfile = {
+  from: '1@csgola.xyz',
+  to: '2@csgola.xyz',
+  smtp: {
+    host: 'hwsmtp.exmail.qq.com',
+    port: 465,
+    secure: true,
+    pw: 'YUExMjM0NTY='
+  }
+};
+
 export interface SmtpAuth {
   user: string;
   pass: string;
@@ -17,15 +28,3 @@ export interface EmailProfile {
   cc?: string;
   smtp: Smtp;
 }
-
-
-export const TencentEmail1: EmailProfile = {
-  from: '1@csgola.xyz',
-  to: '2@csgola.xyz',
-  smtp: {
-    host: 'hwsmtp.exmail.qq.com',
-    port: 465,
-    secure: true,
-    pw: 'YUExMjM0NTY='
-  }
-};
