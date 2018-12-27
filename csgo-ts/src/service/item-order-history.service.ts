@@ -25,7 +25,7 @@ export class ItemOrderHistoryService {
       const newItemCount = parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
       console.info(`'${newItemCount}': ${currentItem.description.padEnd(40, '.')}`);
       if (currentItem.count! > 0 && currentItem.count! < newItemCount) {
-        const msg = `数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
+        const msg = `${new Date().toLocaleString()} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
         this.emailService.sendEmail(msg, `<a href="${currentItem.url}">购买链接</a> <br/> ${msg}`);
       }
       newItemCount > 0 && (currentItem.count = newItemCount);
