@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts proxy",
+    "noproxy": "ts-node src/index.ts"
   },
   "author": "Han Li",
   "license": "MIT",
@@ -17,6 +18,7 @@
     "typescript": "^3.2.2"
   },
   "dependencies": {
+    "global-tunnel-ng": "^2.7.1",
     "got": "^9.5.0",
     "nodemailer": "^4.7.0",
     "reflect-metadata": "^0.1.12",
