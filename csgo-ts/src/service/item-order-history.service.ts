@@ -14,7 +14,7 @@ export class ItemOrderHistoryService {
 
   async getItemById(itemNameId: number): Promise<ItemOrderHistory> {
     const url = `${this.baseUrl}${itemNameId}`;
-    const res: Response<ItemOrderHistory> = await got.get(url, { json: true, timeout: ApiTimeout * 1000 });
+    const res: Response<ItemOrderHistory> = await got.get(url, { json: true, timeout: ApiTimeout * 1000, rejectUnauthorized: false });
     return res.body;
   }
 
