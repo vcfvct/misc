@@ -1,6 +1,6 @@
 import { Service, Inject } from 'typedi';
 import got, { Response } from 'got';
-import { ApiTimeout, ScanInterval } from '../config/runtime.config';
+import { ApiTimeout, ScanInterval, ServerConfig } from '../config/runtime.config';
 import { ItemToScan, itemsToScan } from '../config/item.config';
 import { EmailService } from './email.service';
 import { base64Encode } from '../common/utils';
@@ -13,7 +13,7 @@ export class ItemOrderHistoryService {
   emailService: EmailService;
 
   baseUrl = 'https://steamcommunity.com/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=23&item_nameid=';
-  apiUrl = 'http://47.75.97.6:9012/api/server/dotnet/itemChange';
+  apiUrl = `${ServerConfig.serverUrl}/api/server/dotnet/itemChange`;
 
   async getItemById(itemNameId: number): Promise<ItemOrderHistory> {
     const url = `${this.baseUrl}${itemNameId}`;
@@ -32,7 +32,7 @@ export class ItemOrderHistoryService {
         const msg = `${parseTime} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
         this.emailService.sendEmail(msg, `<a href="${currentItem.url}">购买链接</a> <br/> ${msg}`);
         // notify server on item change
-        this.callItemChangeApi(currentItem, newItemCount, parseTime);
+        this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory.buy_order_price);
       }
       newItemCount > 0 && (currentItem.count = newItemCount);
     } catch (e) {
@@ -41,7 +41,7 @@ export class ItemOrderHistoryService {
     setTimeout(() => this.scanItems(++itemIndex), ScanInterval * 1000);
   }
 
-  callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string) {
+  callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, price: string) {
     // extract standard English name from url
     const itemName = decodeURIComponent(currentItem.url.substring('https://steamcommunity.com/market/listings/730/'.length));
     const apiItem: ApiItem = {
@@ -50,11 +50,12 @@ export class ItemOrderHistoryService {
       hashName: itemName,
       count: newItemCount,
       parseTime,
-      hostId: 888,
+      hostId: ServerConfig.hostId,
       countChnange: `${currentItem.count}->${newItemCount}`,
       reciveTime: parseTime,
       isIncrease: true,
-      showlink: currentItem.url
+      showlink: currentItem.url,
+      price
     };
     const apiItemEncoded: string = base64Encode(JSON.stringify({ itemList: [apiItem] }));
     const query = new URLSearchParams([['content', apiItemEncoded]]);
@@ -105,4 +106,5 @@ export interface ApiItem {
   reciveTime: string;
   isIncrease: boolean;
   showlink: string;
+  price: string;
 }
