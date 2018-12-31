@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts proxy"
+    "start": "ts-node src/index.ts proxy",
+    "no-proxy": "ts-node src/index.ts"
   },
   "author": "Han Li",
   "license": "MIT",
