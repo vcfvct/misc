@@ -11,8 +11,7 @@
     "strictPropertyInitialization": false,
     "lib": [
       "es2017",
-      "esnext.asynciterable",
-      "dom"
+      "esnext.asynciterable"
     ],
     "outDir": "dist",
     "baseUrl": ".",

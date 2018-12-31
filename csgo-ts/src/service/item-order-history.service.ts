@@ -4,6 +4,7 @@ import { ApiTimeout, ScanInterval } from '../config/runtime.config';
 import { ItemToScan, itemsToScan } from '../config/item.config';
 import { EmailService } from './email.service';
 import { base64Encode } from '../common/utils';
+import { URLSearchParams } from 'url';
 
 @Service()
 export class ItemOrderHistoryService {
@@ -50,7 +51,7 @@ export class ItemOrderHistoryService {
       count: newItemCount,
       parseTime,
       hostId: 888,
-      countChnange: `${currentItem.count}-\\u003e${newItemCount}`,
+      countChnange: `${currentItem.count}->${newItemCount}`,
       reciveTime: parseTime,
       isIncrease: true,
       showlink: currentItem.url
