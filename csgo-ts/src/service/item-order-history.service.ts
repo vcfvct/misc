@@ -34,7 +34,7 @@ export class ItemOrderHistoryService {
         // notify server on item change
         this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory.buy_order_price);
       }
-      newItemCount > 0 && (currentItem.count = newItemCount);
+      newItemCount >= 0 && (currentItem.count = newItemCount);
     } catch (e) {
       console.error(e.message);
     }
