@@ -5,6 +5,7 @@ import { ItemToScan, itemsToScan } from '../config/item.config';
 import { EmailService } from './email.service';
 import { base64Encode } from '../common/utils';
 import { URLSearchParams } from 'url';
+import { Retryable } from 'typescript-retry-decorator';
 
 @Service()
 export class ItemOrderHistoryService {
@@ -15,6 +16,7 @@ export class ItemOrderHistoryService {
   baseUrl = 'https://steamcommunity.com/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=23&item_nameid=';
   apiUrl = `${ServerConfig.serverUrl}/api/server/dotnet/itemChange`;
 
+  @Retryable({ maxAttempts: 1, backOff: ScanInterval })
   async getItemById(itemNameId: number): Promise<ItemOrderHistory> {
     const url = `${this.baseUrl}${itemNameId}`;
     const res: Response<ItemOrderHistory> = await got.get(url, { json: true, timeout: ApiTimeout * 1000, rejectUnauthorized: false });
@@ -22,21 +24,29 @@ export class ItemOrderHistoryService {
   }
 
   async scanItems(itemIndex: number) {
+    const currentItem: ItemToScan = itemsToScan[itemIndex % itemsToScan.length];
     try {
-      const currentItem: ItemToScan = itemsToScan[itemIndex % itemsToScan.length];
+      itemsToScan.map(() => { });
       const itemOrderHistory: ItemOrderHistory = await this.getItemById(currentItem.nameId);
-      const newItemCount = parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
-      console.info(`'${newItemCount}': ${currentItem.description.padEnd(40, '.')}`);
-      if (currentItem.count! > 0 && currentItem.count! < newItemCount) {
-        const parseTime: string = new Date().toLocaleString();
-        const msg = `${parseTime} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
-        this.emailService.sendEmail(msg, `<a href="${currentItem.url}">购买链接</a> <br/> ${msg}`);
-        // notify server on item change
-        this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory.buy_order_price);
+      if (itemOrderHistory.sell_order_count) {
+        const newItemCount = parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
+        console.info(`'${newItemCount}': ${currentItem.description.padEnd(40, '.')}`);
+        if (currentItem.count! > 0 && currentItem.count! < newItemCount) {
+          const parseTime: string = new Date().toLocaleString();
+          const msg = `${parseTime} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
+          this.emailService.sendEmail(msg, `
+          <a href="${currentItem.url}">购买链接</a>
+          <br/> ${msg}
+          <br/> <a href="https://steamcommunity-a.akamaihd.net/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=23&item_nameid=${currentItem.nameId}">API链接</a>
+          <br/>`
+          );
+          // notify server on item change
+          this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory.buy_order_price);
+        }
+        newItemCount >= 0 && (currentItem.count = newItemCount);
       }
-      newItemCount >= 0 && (currentItem.count = newItemCount);
     } catch (e) {
-      console.error(e.message);
+      console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
     }
     setTimeout(() => this.scanItems(++itemIndex), ScanInterval * 1000);
   }
