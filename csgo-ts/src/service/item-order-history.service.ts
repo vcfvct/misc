@@ -28,23 +28,21 @@ export class ItemOrderHistoryService {
     try {
       itemsToScan.map(() => { });
       const itemOrderHistory: ItemOrderHistory = await this.getItemById(currentItem.nameId);
-      if (itemOrderHistory.sell_order_count) {
-        const newItemCount = parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
-        console.info(`'${newItemCount}': ${currentItem.description.padEnd(40, '.')}`);
-        if (currentItem.count! >= 0 && currentItem.count! < newItemCount) {
-          const parseTime: string = new Date().toLocaleString();
-          const msg = `${parseTime} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
-          this.emailService.sendEmail(msg, `
+      const newItemCount: number = itemOrderHistory.sell_order_count === 0 ? 0 : parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
+      console.info(`'${newItemCount}': ${currentItem.description.padEnd(40, '.')}`);
+      if (currentItem.count! >= 0 && currentItem.count! < newItemCount) {
+        const parseTime: string = new Date().toLocaleString();
+        const msg = `${parseTime} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
+        this.emailService.sendEmail(msg, `
           <a href="${currentItem.url}">购买链接</a>
           <br/> ${msg}
           <br/> <a href="https://steamcommunity-a.akamaihd.net/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=23&item_nameid=${currentItem.nameId}">API链接</a>
           <br/>`
-          );
-          // notify server on item change
-          this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory.buy_order_price);
-        }
-        newItemCount >= 0 && (currentItem.count = newItemCount);
+        );
+        // notify server on item change
+        this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory.buy_order_price);
       }
+      currentItem.count = newItemCount;
     } catch (e) {
       console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
     }
@@ -87,7 +85,7 @@ export interface BuyOrderTable {
 
 export interface ItemOrderHistory {
   success: number;
-  sell_order_count: string;
+  sell_order_count: string | 0;
   sell_order_price: string;
   sell_order_table: SellOrderTable[];
   buy_order_count: string;
