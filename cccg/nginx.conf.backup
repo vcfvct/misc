@@ -16,7 +16,12 @@ server {
     proxy_hide_header x-amz-request-id;
     proxy_hide_header Set-Cookie;
     proxy_ignore_headers "Set-Cookie";
-
+  }
+  
+  # https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-nginx-on-ubuntu-14-04
+  location /sites/default/files/Bulletins {
+    auth_basic "Restricted Content";
+    auth_basic_user_file /etc/nginx/.htpasswd;
   }
 
   location / {
