@@ -28,7 +28,7 @@ GM_addStyle('#info-banner {position: fixed; top: 0; height: 40px; width: 100%;  
 		refreshing = false;
 		sessionStorage.setItem(refreshKey, refreshing);
 		sessionStorage.setItem(pageTitle, itemNumber);
-		const text = `Item '${pageTitle}' increased from ${previousItemNumber} to ${itemNumber}. `;
+		const text = `Item increased from ${previousItemNumber} to ${itemNumber}. `;
 		const notificationDetails = {
 			text,
 			title: 'Refresh Stopped, press the Button to resume refresh',
@@ -36,7 +36,7 @@ GM_addStyle('#info-banner {position: fixed; top: 0; height: 40px; width: 100%;  
 			onclick: () => window.focus()
 		};
 		GM_notification(notificationDetails);
-		const infoBanner = createDomElement(`<div id='info-banner'><h1>${msg}</h1></div>`);
+		const infoBanner = createDomElement(`<div id='info-banner'><h1>${text}</h1></div>`);
 		document.body.appendChild(infoBanner);
 		clickGetAllFloatsButton();
 	}
