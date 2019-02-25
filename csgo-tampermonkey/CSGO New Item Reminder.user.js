@@ -47,18 +47,12 @@ GM_addStyle('#info-banner {position: fixed; top: 0; height: 40px; width: 100%;  
 		refreshing = !refreshing;
 		refreshButton.setAttribute('value', getNextButtonState(refreshing));
 		sessionStorage.setItem(refreshKey, refreshing);
-		if (refreshing) {
-			location.reload();
-		}
-		console.info(`after button click: ${refreshing}`);
+		refreshing && location.reload();
 	});
 
 	if (refreshing) {
-		setTimeout(() => {
-			const shouldRefresh = JSON.parse(sessionStorage.getItem(refreshKey));
-			console.info('in setTimeout: ' + shouldRefresh);
-			shouldRefresh && location.reload();
-		},
+		setTimeout(
+			() => JSON.parse(sessionStorage.getItem(refreshKey)) && location.reload(),
 			61 * 1000
 		);
 	}
