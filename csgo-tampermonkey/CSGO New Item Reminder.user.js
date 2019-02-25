@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO New Item Reminder
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      1.0
 // @description  Auto Refresh page if no item is changed in the page. When new item appears, there will be Desktop notification as well as info banner for reminding.
 // @author       Han Li
 // @include      https://steamcommunity.com/market/listings/730/*
@@ -28,15 +28,12 @@ GM_addStyle('#info-banner {position: fixed; top: 0; height: 40px; width: 100%;  
 		refreshing = false;
 		sessionStorage.setItem(refreshKey, refreshing);
 		sessionStorage.setItem(pageTitle, itemNumber);
-		const msg = `Item increased from ${previousItemNumber} to ${itemNumber}. `;
+		const text = `Item '${pageTitle}' increased from ${previousItemNumber} to ${itemNumber}. `;
 		const notificationDetails = {
-			text: msg,
+			text,
 			title: 'Refresh Stopped, press the Button to resume refresh',
 			timeout: 10000,
-			onclick: function () {
-				console.log("Notice clicked.");
-				window.focus();
-			}
+			onclick: () => window.focus()
 		};
 		GM_notification(notificationDetails);
 		const infoBanner = createDomElement(`<div id='info-banner'><h1>${msg}</h1></div>`);
@@ -58,18 +55,14 @@ GM_addStyle('#info-banner {position: fixed; top: 0; height: 40px; width: 100%;  
 
 	if (refreshing) {
 		setTimeout(() => {
-			let shouldRefresh = JSON.parse(sessionStorage.getItem(refreshKey));
-			console.log('in setTimeout: ' + shouldRefresh);
-			if (shouldRefresh) {
-				location.reload();
-			}
+			const shouldRefresh = JSON.parse(sessionStorage.getItem(refreshKey));
+			console.info('in setTimeout: ' + shouldRefresh);
+			shouldRefresh && location.reload();
 		},
 			61 * 1000
 		);
 	}
-
 	document.body.appendChild(refreshButton);
-
 })();
 
 /**
@@ -113,5 +106,3 @@ function waitFor(selector) {
 function createDomElement(domString) {
 	return new DOMParser().parseFromString(domString, 'text/html').documentElement;
 }
-
-
