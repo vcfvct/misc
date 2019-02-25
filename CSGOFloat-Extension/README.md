@@ -1,0 +1,1 @@
+A modifier version of the [float checker](https://github.com/Step7750/CSGOFloat-Extension)

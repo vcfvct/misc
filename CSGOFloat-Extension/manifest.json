@@ -1,0 +1,34 @@
+{
+    "manifest_version": 2,
+    "name": "CSGOFloat Market Checker Xiaolin",
+    "short_name": "CSGOFloat_xiaolin",
+    "version": "1.2.1",
+    "description": "Dedicated API for fetching the float value and paint seed of CSGO items on the market",
+    "icons": {
+        "16": "icons/16.png",
+        "48": "icons/48.png",
+        "128": "icons/128.png"
+    },
+    "content_scripts": [
+        {
+            "matches": ["*://*.steamcommunity.com/market/listings/730/*"],
+            "js": [
+                "lib/filtrex.js",
+                "lib/utils.js",
+                "lib/filters.js",
+                "float.js"
+            ],
+            "css": [
+                "float.css"
+            ]
+        }
+    ],
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "permissions": [
+        "http://csgofloat.cf:8888/*",
+        "*://*.steamcommunity.com/market/listings/730/*",
+        "storage"
+    ]
+}
