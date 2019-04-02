@@ -63,6 +63,7 @@ export class ItemOrderHistoryService {
       reciveTime: parseTime,
       isIncrease: true,
       showlink: currentItem.url,
+      apiUrl: `${this.baseUrl}${currentItem.nameId}`,
       price
     };
     const apiItemEncoded: string = base64Encode(JSON.stringify({ itemList: [apiItem] }));
@@ -115,4 +116,5 @@ export interface ApiItem {
   isIncrease: boolean;
   showlink: string;
   price: string;
+  apiUrl: string;
 }
