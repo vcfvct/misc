@@ -31,7 +31,7 @@ export class InfraStack extends cdk.Stack {
     mySecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'allow https from the world');
 
     const instance = new ec2.CfnInstance(this, 'CccgEc2', {
-      imageId: 'ami-0c46f9f09e3a8c2b5',
+      imageId: 'ami-07d0cf3af28718ef8',
       instanceType: 't2.micro',
       keyName: 'id_rsa',
       monitoring: false,
