@@ -63,6 +63,15 @@ resource "aws_security_group_rule" "ssh" {
   to_port           = 22
 }
 
+resource "aws_security_group_rule" "outbound" {
+  security_group_id = "${aws_security_group.server.id}"
+  type              = "egress"
+  cidr_blocks       = ["0.0.0.0/0"]
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+}
+
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = "${aws_vpc.main.id}"
@@ -90,12 +99,18 @@ resource "aws_route_table_association" "a" {
   route_table_id = "${aws_route_table.r.id}"
 }
 
+resource "aws_key_pair" "han-pub" {
+  key_name   = "han-pub"
+  public_key = "${file("han.pub")}"
+}
+
 resource "aws_instance" "web" {
   ami                    = "ami-07d0cf3af28718ef8"
   instance_type          = "t2.micro"
   vpc_security_group_ids = ["${aws_security_group.server.id}"]
   subnet_id              = "${aws_subnet.main.id}"
-  key_name               = "id_rsa"
+  key_name               = "${aws_key_pair.han-pub.key_name}"
+  user_data              = "${file("init.sh")}"
   tags = {
     Name = "cccgWeb"
   }

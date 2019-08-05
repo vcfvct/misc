@@ -1,7 +1,5 @@
 import cdk = require('@aws-cdk/core');
 import ec2 = require('@aws-cdk/aws-ec2');
-import { toUnicode } from 'punycode';
-
 
 export class InfraStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -27,6 +25,7 @@ export class InfraStack extends cdk.Stack {
     mySecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22), 'allow ssh access from the world');
     mySecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'allow http from the world');
     mySecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'allow https from the world');
+    mySecurityGroup.addEgressRule(ec2.Peer.anyIpv4(), ec2.Port.allTraffic(), 'allow outbound');
 
     const instance = new ec2.CfnInstance(this, 'CccgEc2', {
       imageId: 'ami-07d0cf3af28718ef8',
@@ -37,7 +36,7 @@ export class InfraStack extends cdk.Stack {
         mySecurityGroup.securityGroupId
       ],
       subnetId: vpc.publicSubnets[0].subnetId,
-      iamInstanceProfile: 'ec2-role'
+      //iamInstanceProfile: 'ec2-role'
     });
 
     const eip = new ec2.CfnEIP(this, 'eip', {
