@@ -19,8 +19,6 @@ export class InfraStack extends cdk.Stack {
       ]
     });
 
-
-
     const mySecurityGroup = new ec2.SecurityGroup(this, 'SecurityGroup', {
       vpc,
       description: 'Allow ssh access to ec2 instances',
@@ -41,5 +39,13 @@ export class InfraStack extends cdk.Stack {
       subnetId: vpc.publicSubnets[0].subnetId,
       iamInstanceProfile: 'ec2-role'
     });
+
+    const eip = new ec2.CfnEIP(this, 'eip', {
+    })
+
+    new ec2.CfnEIPAssociation(this, 'ea', {
+      eip: eip.ref,
+      instanceId: instance.ref
+    })
   }
 }
