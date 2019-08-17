@@ -24,6 +24,7 @@ sudo nginx -t
 sudo systemctl reload nginx
 
 # php7
+sudo add-apt-repository ppa:ondrej/php -y
 sudo apt install php7.0-fpm php7.0-mbstring php7.0-xml php7.0-mysql php7.0-common php7.0-gd php7.0-json php7.0-cli php7.0-curl
 sudo systemctl start php7.0-fpm
 systemctl status php7.0-fpm
