@@ -50,15 +50,20 @@ mysqldump -h 127.0.0.1 -u root -p cccgerm --compress > 20180808.sql
 # Mysql connect/import
 mysql -h RDS-HOST -P 3306 -u cccgadm -p
 mysql -h mysql-drupal.c7lqc6fawrjq.us-east-1.rds.amazonaws.com -P 3306 -u cccgadm -p DB_NAME < cccgerm.sql 
-# drupal mysql connection info
+# drupal mysql connection info, if user lock error, create a new mysql user with all rights and replace in below file
 vi /var/www/html/sites/default/settings.php
 
 # keep EBS when ec2 terminated.
 aws ec2 modify-instance-attribute --instance-id i-xxxxxxx --block-device-mappings "[{\"DeviceName\": \"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":false}}]" --region us-east-1
 
 # drupal files in S3
-# aws s3 cp s3://cccg-drupal-fs/site.tgz site.tgz
-# tar -xvf site.tgz --directory /var/www/html
+## source
+tar -czvf site.tgz /var/www/html
+## dest
+aws s3 cp s3://cccg-drupal-fs/site.tgz site.tgz
+tar -xzvf site.tgz --directory /var/www/html
+## or scp directly
+scp -r /var/www/html ubuntu@DestIPAdress /var/www
 
 # add cccgadm to nginx 'www-data' group and modify the 'file_attach' directory to have 'w' for the group
 sudo adduser cccgadm
@@ -72,6 +77,7 @@ chmod 600 /home/cccgadm/.ssh/authorized_keys
 
 
 ### SSL part [HERE](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
+sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 # install certbot
 sudo add-apt-repository ppa:certbot/certbot
 sudo apt update
