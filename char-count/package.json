@@ -1,0 +1,23 @@
+{
+  "name": "english-word-char-count",
+  "version": "1.0.0",
+  "description": "get word with most chars(repeat)",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "typescript",
+    "nodejs",
+    "starter",
+    "barebone"
+  ],
+  "author": "Han Li",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^12.7.3",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.19.0",
+    "typescript": "^3.6.2"
+  }
+}
