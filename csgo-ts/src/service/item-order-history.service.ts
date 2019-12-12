@@ -1,7 +1,6 @@
 import { Service, Inject } from 'typedi';
 import got, { Response } from 'got';
 import { ApiTimeout, ScanInterval, ServerConfig } from '../config/runtime.config';
-import { ItemToScan, itemsToScan } from '../config/item.config';
 import { EmailService } from './email.service';
 import { base64Encode } from '../common/utils';
 import { URLSearchParams } from 'url';
@@ -9,6 +8,7 @@ import { Retryable } from 'typescript-retry-decorator';
 
 @Service()
 export class ItemOrderHistoryService {
+  itemsToScan: Array<ItemToScan>
 
   @Inject()
   emailService: EmailService;
@@ -24,7 +24,7 @@ export class ItemOrderHistoryService {
   }
 
   async scanItems(itemIndex: number): Promise<void> {
-    const currentItem: ItemToScan = itemsToScan[itemIndex % itemsToScan.length];
+    const currentItem: ItemToScan = this.itemsToScan[itemIndex % this.itemsToScan.length];
     try {
       const itemOrderHistory: ItemOrderHistory = await this.getItemById(currentItem.nameId);
       const newItemCount: number = itemOrderHistory.sell_order_count === 0 ? 0 : parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
@@ -117,3 +117,11 @@ export interface ApiItem {
   price: string;
   apiUrl: string;
 }
+
+export interface ItemToScan {
+  nameId: number;
+  description: string;
+  url: string;
+  count?: number;
+}
+

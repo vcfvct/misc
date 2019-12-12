@@ -4,9 +4,8 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts proxy",
-    "lint": "eslint --ext .ts src/",
-    "no-proxy": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "lint": "eslint --ext .ts src/"
   },
   "author": "Han Li",
   "license": "MIT",
@@ -14,6 +13,7 @@
     "@types/got": "^9.2.2",
     "@types/node": "^10.12.15",
     "@types/nodemailer": "^4.6.5",
+    "@types/yargs": "^13.0.3",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
     "@typescript-eslint/parser": "^2.10.0",
     "eslint": "^6.7.2",
@@ -28,6 +28,7 @@
     "nodemailer": "^4.7.0",
     "reflect-metadata": "^0.1.12",
     "typedi": "^0.8.0",
-    "typescript-retry-decorator": "^1.0.5"
+    "typescript-retry-decorator": "^1.0.5",
+    "yargs": "^15.0.2"
   }
 }
