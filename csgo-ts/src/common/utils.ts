@@ -6,6 +6,6 @@ export function base64Encode(input: string): string {
   return Buffer.from(input).toString('base64');
 }
 
-export function throwError(msg?: string) {
+export function throwError(msg?: string): void {
   throw new Error(msg);
 }

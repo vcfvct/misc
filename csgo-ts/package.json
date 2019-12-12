@@ -5,17 +5,22 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "ts-node src/index.ts proxy",
+    "lint": "eslint --ext .ts src/",
     "no-proxy": "ts-node src/index.ts"
   },
   "author": "Han Li",
   "license": "MIT",
   "devDependencies": {
+    "@types/got": "^9.2.2",
     "@types/node": "^10.12.15",
     "@types/nodemailer": "^4.6.5",
-    "@types/got": "^9.2.2",
+    "@typescript-eslint/eslint-plugin": "^2.10.0",
+    "@typescript-eslint/parser": "^2.10.0",
+    "eslint": "^6.7.2",
+    "eslint-config-ts-vcfvct": "^1.0.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
-    "typescript": "^3.2.2"
+    "typescript": "^3.7.3"
   },
   "dependencies": {
     "global-tunnel-ng": "^2.7.1",

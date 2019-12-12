@@ -23,10 +23,9 @@ export class ItemOrderHistoryService {
     return res.body;
   }
 
-  async scanItems(itemIndex: number) {
+  async scanItems(itemIndex: number): Promise<void> {
     const currentItem: ItemToScan = itemsToScan[itemIndex % itemsToScan.length];
     try {
-      itemsToScan.map(() => { });
       const itemOrderHistory: ItemOrderHistory = await this.getItemById(currentItem.nameId);
       const newItemCount: number = itemOrderHistory.sell_order_count === 0 ? 0 : parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
       console.info(`'${newItemCount}': ${currentItem.description.padEnd(40, '.')}`);
@@ -37,7 +36,7 @@ export class ItemOrderHistoryService {
           <a href="${currentItem.url}">购买链接</a>
           <br/> ${msg}
           <br/> <a href="https://steamcommunity-a.akamaihd.net/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=23&item_nameid=${currentItem.nameId}">API链接</a>
-          <br/>`
+          <br/>`,
         );
         // notify server on item change
         this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory.buy_order_price);
@@ -49,7 +48,7 @@ export class ItemOrderHistoryService {
     setTimeout(() => this.scanItems(++itemIndex), ScanInterval * 1000);
   }
 
-  callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, price: string) {
+  callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, price: string): void {
     // extract standard English name from url
     const itemName = decodeURIComponent(currentItem.url.substring('https://steamcommunity.com/market/listings/730/'.length));
     const apiItem: ApiItem = {
@@ -64,7 +63,7 @@ export class ItemOrderHistoryService {
       isIncrease: true,
       showlink: currentItem.url,
       apiUrl: `${this.baseUrl}${currentItem.nameId}`,
-      price
+      price,
     };
     const apiItemEncoded: string = base64Encode(JSON.stringify({ itemList: [apiItem] }));
     const query = new URLSearchParams([['content', apiItemEncoded]]);

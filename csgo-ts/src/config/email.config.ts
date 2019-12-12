@@ -26,6 +26,6 @@ export const TencentEmail1: EmailProfile = {
     host: 'hwsmtp.exmail.qq.com',
     port: 465,
     secure: true,
-    pw: 'YUExMjM0NTY='
-  }
+    pw: 'YUExMjM0NTY=',
+  },
 };

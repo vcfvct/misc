@@ -1,7 +1,7 @@
 import { EmailProfile } from '../config/email.config';
 import { Service, Inject } from 'typedi';
 import { EmailProfileInjectionToken } from '../common/constants';
-import nodemailer, { SentMessageInfo, TransportOptions } from 'nodemailer';
+import nodemailer, { SentMessageInfo } from 'nodemailer';
 import { Transporter } from 'nodemailer';
 import { Options } from 'nodemailer/lib/smtp-transport';
 import { base64Decode } from '../common/utils';
@@ -23,12 +23,12 @@ export class EmailService {
     return this._transporter;
   }
 
-  async sendEmail(subject: string, body: string) {
+  async sendEmail(subject: string, body: string): Promise<void> {
     const mailOptions: Options = {
       from: this.emailProfile.from,
       to: this.emailProfile.to,
       subject: subject,
-      html: body
+      html: body,
     };
     this.emailProfile.cc && (mailOptions.cc = this.emailProfile.cc);
     console.info(`Sending email from ${this.emailProfile.from} to ${this.emailProfile.to} with subject: ${subject}. content: \n ${body}`);

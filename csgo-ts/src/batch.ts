@@ -1,5 +1,5 @@
 import * as cp from 'child_process';
-import { statSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import { statSync, readdirSync } from 'fs';
 import { resolve } from 'path';
 
 const BasePath = '/Users/xex766';
