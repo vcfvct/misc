@@ -10,11 +10,11 @@ import * as fs from 'fs';
 const args = yargs
   .option('config', {
     alias: 'c',
-    description: 'specify config file number'
+    description: 'specify config file number',
   })
   .option('proxy', {
     alias: 'p',
-    description: 'specify use proxy or not'
+    description: 'specify use proxy or not',
   })
   .argv;;
 if (args.proxy) {
