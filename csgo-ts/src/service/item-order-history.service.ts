@@ -1,35 +1,34 @@
 import { Service, Inject } from 'typedi';
 import got, { Response } from 'got';
-import { ApiTimeout, ScanInterval, ServerConfig } from '../config/runtime.config';
 import { EmailService } from './email.service';
 import { base64Encode } from '../common/utils';
 import { URLSearchParams } from 'url';
 import { Retryable } from 'typescript-retry-decorator';
+import { AppConfig, ItemToScan } from '../types';
 
 @Service()
 export class ItemOrderHistoryService {
-  itemsToScan: Array<ItemToScan>
+  appConfig: AppConfig;
 
   @Inject()
   emailService: EmailService;
 
   baseUrl = 'https://steamcommunity.com/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=23&item_nameid=';
-  apiUrl = `${ServerConfig.serverUrl}/api/server/dotnet/itemChange`;
 
-  @Retryable({ maxAttempts: 1, backOff: ScanInterval })
+  @Retryable({ maxAttempts: 1, backOff: 1 })
   async getItemById(itemNameId: number): Promise<ItemOrderHistory> {
     const url = `${this.baseUrl}${itemNameId}`;
-    const res: Response<ItemOrderHistory> = await got.get(url, { json: true, timeout: ApiTimeout * 1000, rejectUnauthorized: false });
+    const res: Response<ItemOrderHistory> = await got.get(url, { json: true, timeout: this.appConfig.apiTimeout * 1000, rejectUnauthorized: false });
     return res.body;
   }
 
   async scanItems(itemIndex: number): Promise<void> {
-    const currentItem: ItemToScan = this.itemsToScan[itemIndex % this.itemsToScan.length];
+    const currentItem: ItemToScan = this.appConfig.items[itemIndex % this.appConfig.items.length];
     try {
       const itemOrderHistory: ItemOrderHistory = await this.getItemById(currentItem.nameId);
       const newItemCount: number = itemOrderHistory.sell_order_count === 0 ? 0 : parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
-      console.info(`'${newItemCount}': ${currentItem.description.padEnd(40, '.')}`);
-      if (currentItem.count! >= 0 && currentItem.count! < newItemCount) {
+      console.info(`###'${newItemCount}': ${currentItem.description.padEnd(40, '.')}`);
+      if (currentItem.count !== undefined && currentItem.count! >= 0 && currentItem.count! < newItemCount) {
         const parseTime: string = new Date().toLocaleString();
         const msg = `${parseTime} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
         this.emailService.sendEmail(msg, `
@@ -45,7 +44,7 @@ export class ItemOrderHistoryService {
     } catch (e) {
       console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
     }
-    setTimeout(() => this.scanItems(++itemIndex), ScanInterval * 1000);
+    setTimeout(() => this.scanItems(++itemIndex), this.appConfig.scanInterval * 1000);
   }
 
   callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, price: string): void {
@@ -57,7 +56,7 @@ export class ItemOrderHistoryService {
       hashName: itemName,
       count: newItemCount,
       parseTime,
-      hostId: ServerConfig.hostId,
+      hostId: this.appConfig.serverConfig.hostId,
       countChnange: `${currentItem.count}->${newItemCount}`,
       reciveTime: parseTime,
       isIncrease: true,
@@ -67,8 +66,9 @@ export class ItemOrderHistoryService {
     };
     const apiItemEncoded: string = base64Encode(JSON.stringify({ itemList: [apiItem] }));
     const query = new URLSearchParams([['content', apiItemEncoded]]);
-    console.info(`calling API '${this.apiUrl}' with param: '${query.toString()}'`);
-    got.get(this.apiUrl, { query });
+    const serverApiUrl = `${this.appConfig.serverConfig.serverUrl}/api/server/dotnet/itemChange`;
+    console.info(`calling API '${serverApiUrl}' with param: '${query.toString()}'`);
+    got.get(serverApiUrl, { query });
   }
 }
 
@@ -116,12 +116,5 @@ export interface ApiItem {
   showlink: string;
   price: string;
   apiUrl: string;
-}
-
-export interface ItemToScan {
-  nameId: number;
-  description: string;
-  url: string;
-  count?: number;
 }
 
