@@ -26,7 +26,7 @@ if (args.proxy) {
 
 (async () => {
   Container.set(EmailProfileInjectionToken, TencentEmail1);
-  const configFile = await import(`./config/config${args.config || 1}`);
+  const configFile = await import(`./config/config${args.config ?? 1}`);
   const itemOrderHistoryService: ItemOrderHistoryService = Container.get(ItemOrderHistoryService);
   itemOrderHistoryService.appConfig = configFile.appConfig;
   itemOrderHistoryService.scanItems(0);
