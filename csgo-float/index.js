@@ -175,13 +175,13 @@ queue.process(CONFIG.logins.length, async (job) => {
 
     gameData.addAdditionalItemProperties(itemData.iteminfo);
     resHandler.respondFloatToUser(job.data, itemData);
-    LoadingItems.delete(hash);
     subject.next(itemData);
     return delay;
   } catch (e) {
-    LoadingItems.delete(hash);
     winston.warn(`Request Timeout for ${job.data.a}`);
     throw e;
+  } finally {
+    LoadingItems.delete(hash);
   }
 });
 
