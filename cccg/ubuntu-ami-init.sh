@@ -3,6 +3,7 @@
 sudo add-apt-repository ppa:fish-shell/nightly-master -y
 sudo apt-get update -y
 sudo apt-get install fish -y
+chsh -s `which fish`
 
 # aws cli
 curl -O https://bootstrap.pypa.io/get-pip.py
@@ -51,6 +52,9 @@ mysqldump -h 127.0.0.1 -u root -p cccgerm --compress > 20180808.sql
 mysql -h RDS-HOST -P 3306 -u cccgadm -p
 mysql -h mysql-drupal.c7lqc6fawrjq.us-east-1.rds.amazonaws.com -P 3306 -u cccgadm -p DB_NAME < cccgerm.sql 
 # drupal mysql connection info, if user lock error, create a new mysql user with all rights and replace in below file
+# CREATE USER 'admin'@'localhost' IDENTIFIED BY 'password';
+# GRANT ALL PRIVILEGES ON * . * TO 'admin'@'localhost';
+# FLUSH PRIVILEGES;
 vi /var/www/html/sites/default/settings.php
 
 # keep EBS when ec2 terminated.

@@ -16,9 +16,9 @@ sudo systemctl start php7.0-fpm
 systemctl status php7.0-fpm
 
 # Mysql client
-sudo apt-get install mysql-client -y
+# sudo apt-get install mysql-client -y
 # Mysql Server(if host in EC2)
-sudo apt install mysql-server -y
+# sudo apt install mysql-server -y
 
 ### SSL part [HERE](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
 sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048

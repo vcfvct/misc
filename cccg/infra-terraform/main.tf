@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "tf-cccgadm3"
+    bucket = "tf-cccgadm4"
     key    = "web.tfstate"
     region = "us-east-1"
   }
@@ -16,9 +16,10 @@ resource "aws_vpc" "main" {
 }
 
 resource "aws_subnet" "main" {
-  vpc_id                  = "${aws_vpc.main.id}"
+  vpc_id                  = aws_vpc.main.id
   cidr_block              = "172.30.0.0/24"
   map_public_ip_on_launch = true
+  availability_zone       = var.az
 
   tags = {
     Name = "Main"
@@ -26,7 +27,7 @@ resource "aws_subnet" "main" {
 }
 
 resource "aws_security_group" "server" {
-  vpc_id      = "${aws_vpc.main.id}"
+  vpc_id      = aws_vpc.main.id
   name        = "server"
   description = "Security Group for server"
 
@@ -37,7 +38,7 @@ resource "aws_security_group" "server" {
 }
 
 resource "aws_security_group_rule" "http" {
-  security_group_id = "${aws_security_group.server.id}"
+  security_group_id = aws_security_group.server.id
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
   protocol          = "tcp"
@@ -46,7 +47,7 @@ resource "aws_security_group_rule" "http" {
 }
 
 resource "aws_security_group_rule" "https" {
-  security_group_id = "${aws_security_group.server.id}"
+  security_group_id = aws_security_group.server.id
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
   protocol          = "tcp"
@@ -55,7 +56,7 @@ resource "aws_security_group_rule" "https" {
 }
 
 resource "aws_security_group_rule" "ssh" {
-  security_group_id = "${aws_security_group.server.id}"
+  security_group_id = aws_security_group.server.id
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
   protocol          = "tcp"
@@ -64,7 +65,7 @@ resource "aws_security_group_rule" "ssh" {
 }
 
 resource "aws_security_group_rule" "outbound" {
-  security_group_id = "${aws_security_group.server.id}"
+  security_group_id = aws_security_group.server.id
   type              = "egress"
   cidr_blocks       = ["0.0.0.0/0"]
   protocol          = "-1"
@@ -74,7 +75,7 @@ resource "aws_security_group_rule" "outbound" {
 
 
 resource "aws_internet_gateway" "gw" {
-  vpc_id = "${aws_vpc.main.id}"
+  vpc_id = aws_vpc.main.id
 
   tags = {
     Name = "main"
@@ -82,11 +83,11 @@ resource "aws_internet_gateway" "gw" {
 }
 
 resource "aws_route_table" "r" {
-  vpc_id = "${aws_vpc.main.id}"
+  vpc_id = aws_vpc.main.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.gw.id}"
+    gateway_id = aws_internet_gateway.gw.id
   }
 
   tags = {
@@ -95,22 +96,27 @@ resource "aws_route_table" "r" {
 }
 
 resource "aws_route_table_association" "a" {
-  subnet_id      = "${aws_subnet.main.id}"
-  route_table_id = "${aws_route_table.r.id}"
+  subnet_id      = aws_subnet.main.id
+  route_table_id = aws_route_table.r.id
 }
 
 resource "aws_key_pair" "han-pub" {
   key_name   = "han-pub"
-  public_key = "${file("han.pub")}"
+  public_key = file("han.pub")
 }
 
 resource "aws_instance" "web" {
-  ami                    = "${var.amiId}"
+  ami                    = var.amiId
   instance_type          = "t2.micro"
-  vpc_security_group_ids = ["${aws_security_group.server.id}"]
-  subnet_id              = "${aws_subnet.main.id}"
-  key_name               = "${aws_key_pair.han-pub.key_name}"
-  user_data              = "${file("init.sh")}"
+  vpc_security_group_ids = [aws_security_group.server.id]
+  subnet_id              = aws_subnet.main.id
+  key_name               = aws_key_pair.han-pub.key_name
+  user_data              = file("init.sh")
+  availability_zone      = var.az
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = 30
+  }
   tags = {
     Name = "cccgWeb"
   }
@@ -121,6 +127,6 @@ resource "aws_eip" "main" {
 }
 
 resource "aws_eip_association" "eip_assoc" {
-  instance_id   = "${aws_instance.web.id}"
-  allocation_id = "${aws_eip.main.id}"
+  instance_id   = aws_instance.web.id
+  allocation_id = aws_eip.main.id
 }

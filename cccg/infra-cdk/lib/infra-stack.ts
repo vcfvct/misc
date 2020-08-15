@@ -1,5 +1,5 @@
 import cdk = require('@aws-cdk/core');
-import ec2 = require('@aws-cdk/aws-ec2');
+import * as ec2 from '@aws-cdk/aws-ec2';
 
 export class InfraStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -14,37 +14,48 @@ export class InfraStack extends cdk.Stack {
           name: 'Application',
           subnetType: ec2.SubnetType.PUBLIC,
         },
-      ]
+      ],
     });
 
     const mySecurityGroup = new ec2.SecurityGroup(this, 'SecurityGroup', {
       vpc,
       description: 'Allow ssh access to ec2 instances',
-      allowAllOutbound: true   // Can be set to false
+      allowAllOutbound: true,  // Can be set to false
     });
     mySecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22), 'allow ssh access from the world');
     mySecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'allow http from the world');
     mySecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'allow https from the world');
     mySecurityGroup.addEgressRule(ec2.Peer.anyIpv4(), ec2.Port.allTraffic(), 'allow outbound');
 
+    const ubuntuAMI = new ec2.GenericLinuxImage({ 'us-east-1': 'ami-07d0cf3af28718ef8' });
+
+    // Instance details
+    /*
+     * const ec2Instance = new ec2.Instance(this, 'Instance', {
+     *   vpc,
+     *   instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
+     *   machineImage: ubuntuAMI,
+     *   securityGroup: mySecurityGroup,
+     *   vpcSubnets: { subnets: vpc.publicSubnets },
+     * });
+     */
+    // ec2Instance.userData.addExecuteFileCommand()
+
     const instance = new ec2.CfnInstance(this, 'CccgEc2', {
       imageId: 'ami-07d0cf3af28718ef8',
       instanceType: 't2.micro',
       keyName: 'id_rsa',
       monitoring: false,
-      securityGroupIds: [
-        mySecurityGroup.securityGroupId
-      ],
+      securityGroupIds: [mySecurityGroup.securityGroupId],
       subnetId: vpc.publicSubnets[0].subnetId,
-      //iamInstanceProfile: 'ec2-role'
+      // iamInstanceProfile: 'ec2-role'
     });
 
-    const eip = new ec2.CfnEIP(this, 'eip', {
-    })
+    const eip = new ec2.CfnEIP(this, 'eip', {});
 
     new ec2.CfnEIPAssociation(this, 'ea', {
       eip: eip.ref,
-      instanceId: instance.ref
-    })
+      instanceId: instance.ref,
+    });
   }
 }
