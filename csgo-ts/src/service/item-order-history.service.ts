@@ -31,14 +31,16 @@ export class ItemOrderHistoryService {
       if (currentItem.count !== undefined && currentItem.count! >= 0 && currentItem.count! < newItemCount) {
         const parseTime: string = new Date().toLocaleString();
         const msg = `${parseTime} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
-        this.emailService.sendEmail(msg, `
-          <a href="${currentItem.url}">购买链接</a>
-          <br/> ${msg}
-          <br/> <a href="https://steamcommunity-a.akamaihd.net/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=23&item_nameid=${currentItem.nameId}">API链接</a>
-          <br/>`,
-        );
+        /*
+         * this.emailService.sendEmail(msg, `
+         *   <a href="${currentItem.url}">购买链接</a>
+         *   <br/> ${msg}
+         *   <br/> <a href="https://steamcommunity-a.akamaihd.net/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=23&item_nameid=${currentItem.nameId}">API链接</a>
+         *   <br/>`,
+         * );
+         */
         // notify server on item change
-        this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory.buy_order_price);
+        this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory);
       }
       currentItem.count = newItemCount;
     } catch (e) {
@@ -47,7 +49,7 @@ export class ItemOrderHistoryService {
     setTimeout(() => this.scanItems(++itemIndex), this.appConfig.scanInterval * 1000);
   }
 
-  callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, price: string): void {
+  callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, itemOrderHistory: ItemOrderHistory): void {
     // extract standard English name from url
     const itemName = decodeURIComponent(currentItem.url.substring('https://steamcommunity.com/market/listings/730/'.length));
     const apiItem: ApiItem = {
@@ -62,7 +64,8 @@ export class ItemOrderHistoryService {
       isIncrease: true,
       showlink: currentItem.url,
       apiUrl: `${this.baseUrl}${currentItem.nameId}`,
-      price,
+      price: itemOrderHistory.buy_order_price,
+      checkUrl: itemOrderHistory.sell_order_price,
     };
     const apiItemEncoded: string = base64Encode(JSON.stringify({ itemList: [apiItem] }));
     const query = new URLSearchParams([['content', apiItemEncoded]]);
@@ -116,5 +119,6 @@ export interface ApiItem {
   showlink: string;
   price: string;
   apiUrl: string;
+  checkUrl?: string;
 }
 
