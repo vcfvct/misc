@@ -3,6 +3,7 @@ export interface ItemToScan {
   description: string;
   url: string;
   count?: number;
+  sellPrice?: string;
 }
 
 export interface NotifyServerConfig {

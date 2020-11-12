@@ -43,6 +43,7 @@ export class ItemOrderHistoryService {
         this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory);
       }
       currentItem.count = newItemCount;
+      currentItem.sellPrice = itemOrderHistory.sell_order_price;
     } catch (e) {
       console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
     }
@@ -58,7 +59,7 @@ export class ItemOrderHistoryService {
       hashName: itemName,
       count: newItemCount,
       parseTime,
-      hostId: this.appConfig.serverConfig.hostId,
+      hostId: currentItem.sellPrice == itemOrderHistory.sell_order_price ? 0 : 1,
       countChnange: `${currentItem.count}->${newItemCount}`,
       reciveTime: parseTime,
       isIncrease: true,
