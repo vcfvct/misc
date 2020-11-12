@@ -59,14 +59,15 @@ export class ItemOrderHistoryService {
       hashName: itemName,
       count: newItemCount,
       parseTime,
-      hostId: currentItem.sellPrice == itemOrderHistory.sell_order_price ? 0 : 1,
+      hostId: this.appConfig.serverConfig.hostId,
+      sort: currentItem.sellPrice == itemOrderHistory.sell_order_price ? '0' : '1',
       countChnange: `${currentItem.count}->${newItemCount}`,
       reciveTime: parseTime,
       isIncrease: true,
       showlink: currentItem.url,
       apiUrl: `${this.baseUrl}${currentItem.nameId}`,
       price: itemOrderHistory.buy_order_price,
-      checkUrl: itemOrderHistory.sell_order_price,
+      wastage: itemOrderHistory.sell_order_price,
     };
     const apiItemEncoded: string = base64Encode(JSON.stringify({ itemList: [apiItem] }));
     const query = new URLSearchParams([['content', apiItemEncoded]]);
@@ -121,5 +122,7 @@ export interface ApiItem {
   price: string;
   apiUrl: string;
   checkUrl?: string;
+  sort?: string;
+  wastage?: string;
 }
 
