@@ -1,6 +1,6 @@
 import { Service, Inject } from 'typedi';
 import got, { Response } from 'got';
-import { EmailService } from './email.service';
+// import { EmailService } from './email.service';
 import { base64Encode } from '../common/utils';
 import { URLSearchParams } from 'url';
 import { Retryable } from 'typescript-retry-decorator';
@@ -10,8 +10,8 @@ import { AppConfig, ItemToScan } from '../types';
 export class ItemOrderHistoryService {
   appConfig: AppConfig;
 
-  @Inject()
-  emailService: EmailService;
+  // @Inject()
+  // emailService: EmailService;
 
   baseUrl = 'https://steamcommunity.com/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=23&item_nameid=';
 

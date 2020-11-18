@@ -6,10 +6,10 @@ import { Transporter } from 'nodemailer';
 import { Options } from 'nodemailer/lib/smtp-transport';
 import { base64Decode } from '../common/utils';
 
-@Service()
+// @Service()
 export class EmailService {
 
-  @Inject(EmailProfileInjectionToken)
+  // @Inject(EmailProfileInjectionToken)
   emailProfile: EmailProfile;
 
   _transporter: Transporter;
