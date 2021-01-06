@@ -9,7 +9,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "axios": "^0.16.2",
+    "axios": "^0.21.1",
     "csgo": "^1.5.7",
     "csgo-float": "^0.2.0",
     "nodemailer": "^4.1.1",
