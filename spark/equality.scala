@@ -15,16 +15,16 @@ var z2 = z2RddObj.toDF
 // Option 1: do except directly
 val inZ1NotInZ2 = z1.except(z2).toDF()
 val inZ2NotInZ1 = z2.except(z1).toDF()
-inZ1NotInZ2.show
-inZ2NotInZ1.show
 
 def isEqual(left: DataFrame, right: DataFrame): Boolean = {
    if(left.columns.length != right.columns.length) return false // column lengths don't match
    if(left.count != right.count) return false // record count don't match
-   val inLeftNotInRight = left.except(right).toDF()
-   val inRightNotInLeft = right.except(left).toDF()
-   return inLeftNotInRight.count == 0 && inRightNotInLeft.count == 0
+   return left.except(right).isEmpty && right.except(left).isEmpty
 }
+
+inZ1NotInZ2.show
+inZ2NotInZ1.show
+
 
 // Option 2: generate row hash by columns
 def createHashColumn(df: DataFrame) : Column = {
