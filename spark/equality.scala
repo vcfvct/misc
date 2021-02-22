@@ -22,6 +22,15 @@ def isEqual(left: DataFrame, right: DataFrame): Boolean = {
    return left.except(right).isEmpty && right.except(left).isEmpty
 }
 
+// input is spark sql query
+def isEqual(sql1: String, sql2: String): Boolean = {
+   val left = spark.sql(sql1)
+   val right = spark.sql(sql2)
+   if(left.columns.length != right.columns.length) return false // column lengths don't match
+   if(left.count != right.count) return false // record count don't match
+   return left.except(right).isEmpty && right.except(left).isEmpty
+}
+
 inZ1NotInZ2.show
 inZ2NotInZ1.show
 
