@@ -34,6 +34,9 @@ def isEqual(sql1: String, sql2: String): Boolean = {
 inZ1NotInZ2.show
 inZ2NotInZ1.show
 
+z1.createOrReplaceTempView("zillow")
+val cheap = spark.sql("select * from zillow where price < 200000")
+cheap.explain(mode="extended")
 
 // Option 2: generate row hash by columns
 def createHashColumn(df: DataFrame) : Column = {
