@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "mongodb": "^2.2.33",
+    "mongodb": "^3.1.13",
     "nodemailer": "^4.1.1",
     "nodemailer-smtp-transport": "^2.7.4",
     "play-sound": "^1.1.1",
