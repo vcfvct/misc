@@ -38,6 +38,10 @@ z1.createOrReplaceTempView("zillow")
 val cheap = spark.sql("select * from zillow where price < 200000")
 cheap.explain(mode="extended")
 
+// pagination
+val filteredRdd = z1.rdd.zipWithIndex().collect { case (r, i) if i >= 10 && i <=20 => r }
+val newDf = spark.createDataFrame(filteredRdd, z1.schema)
+
 // Option 2: generate row hash by columns
 def createHashColumn(df: DataFrame) : Column = {
    val colArr = df.columns

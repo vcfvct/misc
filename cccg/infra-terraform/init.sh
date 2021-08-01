@@ -25,6 +25,6 @@ sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 # install certbot
 sudo add-apt-repository ppa:certbot/certbot -y
 sudo apt update
-sudo apt install python-certbot-nginx -y
+sudo apt install python3-certbot-nginx -y
 
 
