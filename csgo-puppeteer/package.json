@@ -11,7 +11,7 @@
     "bulk": "node src/bulk-refresh.js"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "mongodb": "^2.2.33",
     "nodemailer": "^4.1.1",
     "nodemailer-smtp-transport": "^2.7.4",
