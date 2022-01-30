@@ -16,7 +16,7 @@ async def main():
     sem = Semaphore(concurrency)  # no. of simultaneous requests
     start_time = time()
     async with AsyncClient() as client:
-        calls = [create_task(get_data(client, sem, jobId)) for jobId in range(job_count)]
+        calls = [create_task(get_data(client, sem, job_id)) for job_id in range(job_count)]
         rs = await gather(*calls)
         print(f"'{job_count}' Jobs, Async/await Time taken: '{round(time() - start_time)} seconds' with concurrency: '{concurrency}'")
         # for r in rs:
