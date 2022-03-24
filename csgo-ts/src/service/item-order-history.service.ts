@@ -6,12 +6,10 @@ import { URLSearchParams } from 'url';
 import { Retryable } from 'typescript-retry-decorator';
 import { AppConfig, ItemToScan } from '../types';
 import { ConfigInjectionToken } from '../common/constants';
-import { WSAENETDOWN } from 'constants';
 
 @Service()
 export class ItemOrderHistoryService {
-  @Inject(ConfigInjectionToken)
-  appConfig: AppConfig;
+  @Inject(ConfigInjectionToken) appConfig: AppConfig;
 
   // @Inject()
   // emailService: EmailService;
@@ -47,7 +45,7 @@ export class ItemOrderHistoryService {
       }
       currentItem.count = newItemCount;
       currentItem.sellPrice = itemOrderHistory.sell_order_price;
-    } catch (e) {
+    } catch (e: any) {
       console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
       this.callItemChangeApi(currentItem, -1, e.message);
     }
