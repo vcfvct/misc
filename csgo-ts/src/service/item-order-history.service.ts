@@ -5,9 +5,12 @@ import { base64Encode } from '../common/utils';
 import { URLSearchParams } from 'url';
 import { Retryable } from 'typescript-retry-decorator';
 import { AppConfig, ItemToScan } from '../types';
+import { ConfigInjectionToken } from '../common/constants';
+import { WSAENETDOWN } from 'constants';
 
 @Service()
 export class ItemOrderHistoryService {
+  @Inject(ConfigInjectionToken)
   appConfig: AppConfig;
 
   // @Inject()
@@ -46,11 +49,12 @@ export class ItemOrderHistoryService {
       currentItem.sellPrice = itemOrderHistory.sell_order_price;
     } catch (e) {
       console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
+      this.callItemChangeApi(currentItem, -1, e.message);
     }
     setTimeout(() => this.scanItems(++itemIndex), this.appConfig.scanInterval * 1000);
   }
 
-  callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, itemOrderHistory: ItemOrderHistory): void {
+  callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, itemOrderHistory?: ItemOrderHistory): void {
     // extract standard English name from url
     const itemName = decodeURIComponent(currentItem.url.substring('https://steamcommunity.com/market/listings/730/'.length));
     const apiItem: ApiItem = {
@@ -60,17 +64,20 @@ export class ItemOrderHistoryService {
       count: newItemCount,
       parseTime,
       hostId: this.appConfig.serverConfig.hostId,
-      sort: currentItem.sellPrice == itemOrderHistory.sell_order_price ? '0' : '1',
+      sort: currentItem.sellPrice == itemOrderHistory?.sell_order_price ? '0' : '1',
       countChnange: `${currentItem.count}->${newItemCount}`,
       reciveTime: parseTime,
       isIncrease: true,
       showlink: currentItem.url,
       apiUrl: `${this.baseUrl}${currentItem.nameId}`,
-      price: itemOrderHistory.buy_order_price,
-      wastage: itemOrderHistory.sell_order_price,
+      price: itemOrderHistory?.buy_order_price,
+      wastage: itemOrderHistory?.sell_order_price,
     };
-    const apiItemEncoded: string = base64Encode(JSON.stringify({ itemList: [apiItem] }));
-    const query = new URLSearchParams([['content', apiItemEncoded]]);
+    this.sendRequest(JSON.stringify({ itemList: [apiItem] }));
+  }
+
+  sendRequest(payload: string): void {
+    const query = new URLSearchParams([['content', base64Encode(payload)]]);
     const serverApiUrl = `${this.appConfig.serverConfig.serverUrl}/api/server/dotnet/itemChange`;
     console.info(`calling API '${serverApiUrl}' with param: '${query.toString()}'`);
     got.get(serverApiUrl, { query });
@@ -119,7 +126,7 @@ export interface ApiItem {
   reciveTime: string;
   isIncrease: boolean;
   showlink: string;
-  price: string;
+  price?: string;
   apiUrl: string;
   checkUrl?: string;
   sort?: string;
