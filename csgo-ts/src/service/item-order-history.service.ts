@@ -45,7 +45,7 @@ export class ItemOrderHistoryService {
       }
       currentItem.count = newItemCount;
       currentItem.sellPrice = itemOrderHistory.sell_order_price;
-    } catch (e: any) {
+    } catch (e) {
       console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
       this.callItemChangeApi(currentItem, -1, e.message, this.appConfig.serverConfig.errorServerUrl);
     }
