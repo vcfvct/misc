@@ -15,7 +15,7 @@ const args = yargs
     alias: 'p',
     description: 'specify use proxy or not',
   })
-  .argv;;
+  .argv;
 if (args.proxy) {
   console.info(`Setting up global proxy!`);
   globalTunnel.initialize({

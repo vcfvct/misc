@@ -8,6 +8,7 @@ export interface ItemToScan {
 
 export interface NotifyServerConfig {
   serverUrl: string;
+  errorServerUrl: string;
   hostId: number;
 }
 

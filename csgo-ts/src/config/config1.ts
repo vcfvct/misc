@@ -1,9 +1,11 @@
+import { AppConfig } from '../types';
 
-export const appConfig = {
+export const appConfig: AppConfig = {
   scanInterval: 0.3,
   apiTimeout: 2,
   serverConfig: {
     serverUrl: 'http://47.75.97.6:9012',
+    errorServerUrl: 'http://192.168.0.205',
     hostId: 888,
   },
   items: [

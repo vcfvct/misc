@@ -41,18 +41,18 @@ export class ItemOrderHistoryService {
          * );
          */
         // notify server on item change
-        this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory);
+        this.callItemChangeApi(currentItem, newItemCount, parseTime, this.appConfig.serverConfig.serverUrl, itemOrderHistory);
       }
       currentItem.count = newItemCount;
       currentItem.sellPrice = itemOrderHistory.sell_order_price;
     } catch (e: any) {
       console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
-      this.callItemChangeApi(currentItem, -1, e.message);
+      this.callItemChangeApi(currentItem, -1, e.message, this.appConfig.serverConfig.errorServerUrl);
     }
     setTimeout(() => this.scanItems(++itemIndex), this.appConfig.scanInterval * 1000);
   }
 
-  callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, itemOrderHistory?: ItemOrderHistory): void {
+  callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, baseUrl: string, itemOrderHistory?: ItemOrderHistory): void {
     // extract standard English name from url
     const itemName = decodeURIComponent(currentItem.url.substring('https://steamcommunity.com/market/listings/730/'.length));
     const apiItem: ApiItem = {
@@ -71,12 +71,12 @@ export class ItemOrderHistoryService {
       price: itemOrderHistory?.buy_order_price,
       wastage: itemOrderHistory?.sell_order_price,
     };
-    this.sendRequest(JSON.stringify({ itemList: [apiItem] }));
+    this.sendRequest(JSON.stringify({ itemList: [apiItem] }), baseUrl);
   }
 
-  sendRequest(payload: string): void {
+  sendRequest(payload: string, baseUrl: string): void {
     const query = new URLSearchParams([['content', base64Encode(payload)]]);
-    const serverApiUrl = `${this.appConfig.serverConfig.serverUrl}/api/server/dotnet/itemChange`;
+    const serverApiUrl = `${baseUrl}/api/server/dotnet/itemChange`;
     console.info(`calling API '${serverApiUrl}' with param: '${query.toString()}'`);
     got.get(serverApiUrl, { query });
   }
