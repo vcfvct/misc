@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import { Service, Inject } from 'typedi';
 import got, { Response } from 'got';
 // import { EmailService } from './email.service';
@@ -25,12 +26,12 @@ export class ItemOrderHistoryService {
 
   async scanItems(itemIndex: number): Promise<void> {
     const currentItem: ItemToScan = this.appConfig.items[itemIndex % this.appConfig.items.length];
+    const parseTime: string = new Date().toLocaleString();
     try {
       const itemOrderHistory: ItemOrderHistory = await this.getItemById(currentItem.nameId);
       const newItemCount: number = itemOrderHistory.sell_order_count === 0 ? 0 : parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
       console.info(`###'${newItemCount}': ${currentItem.description.padEnd(40, '.')}`);
       if (currentItem.count !== undefined && currentItem.count! >= 0 && currentItem.count! < newItemCount) {
-        const parseTime: string = new Date().toLocaleString();
         const msg = `${parseTime} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
         /*
          * this.emailService.sendEmail(msg, `
@@ -47,7 +48,7 @@ export class ItemOrderHistoryService {
       currentItem.sellPrice = itemOrderHistory.sell_order_price;
     } catch (e) {
       console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
-      this.callItemChangeApi(currentItem, -1, e.message, this.appConfig.serverConfig.errorServerUrl);
+      this.callItemChangeApi(currentItem, -1, parseTime, this.appConfig.serverConfig.errorServerUrl, { sell_order_price: e.message } as any);
     }
     setTimeout(() => this.scanItems(++itemIndex), this.appConfig.scanInterval * 1000);
   }
