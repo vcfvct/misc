@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/camelcase */
+
 import { Service, Inject } from 'typedi';
 import got, { Response } from 'got';
 // import { EmailService } from './email.service';
@@ -14,8 +14,8 @@ export class ItemOrderHistoryService {
   // @Inject()
   // emailService: EmailService;
 
-  baseUrl = 'https://steamcommunity.com/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=23&item_nameid=';
-
+  //baseUrl = 'https://steamcommunity.com/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=1&item_nameid=';
+  baseUrl = 'https://steamcommunity-a.akamaihd.net/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=1&item_nameid=';
   @Retryable({ maxAttempts: 1, backOff: 1 })
   async getItemById(itemNameId: number): Promise<ItemOrderHistory> {
     const url = `${this.baseUrl}${itemNameId}`;
@@ -25,12 +25,12 @@ export class ItemOrderHistoryService {
 
   async scanItems(itemIndex: number): Promise<void> {
     const currentItem: ItemToScan = this.appConfig.items[itemIndex % this.appConfig.items.length];
-    const parseTime: string = new Date().toLocaleString();
     try {
       const itemOrderHistory: ItemOrderHistory = await this.getItemById(currentItem.nameId);
       const newItemCount: number = itemOrderHistory.sell_order_count === 0 ? 0 : parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
-      console.info(`###'${newItemCount}': ${currentItem.description.padEnd(40, '.')} ${new Date().toLocaleTimeString()}`);
+      console.info(`###'${newItemCount}': ${currentItem.description.padEnd(40, '.')}`);
       if (currentItem.count !== undefined && currentItem.count! >= 0 && currentItem.count! < newItemCount) {
+        const parseTime: string = new Date().toLocaleString();
         const msg = `${parseTime} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
         /*
          * this.emailService.sendEmail(msg, `
@@ -41,18 +41,18 @@ export class ItemOrderHistoryService {
          * );
          */
         // notify server on item change
-        this.callItemChangeApi(currentItem, newItemCount, parseTime, this.appConfig.serverConfig.serverUrl, itemOrderHistory);
+        this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory);
       }
       currentItem.count = newItemCount;
       currentItem.sellPrice = itemOrderHistory.sell_order_price;
     } catch (e) {
       console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
-      this.callItemChangeApi(currentItem, -1, parseTime, this.appConfig.serverConfig.errorServerUrl, { sell_order_price: e.message } as any);
+    this.callItemChangeApi(currentItem, -1, '', { 'buy_order_price': e.message, success: 999 } as any)
     }
     setTimeout(() => this.scanItems(++itemIndex), this.appConfig.scanInterval * 1000);
   }
 
-  callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, baseUrl: string, itemOrderHistory?: ItemOrderHistory): void {
+  callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, itemOrderHistory: ItemOrderHistory): void {
     // extract standard English name from url
     const itemName = decodeURIComponent(currentItem.url.substring('https://steamcommunity.com/market/listings/730/'.length));
     const apiItem: ApiItem = {
@@ -62,20 +62,18 @@ export class ItemOrderHistoryService {
       count: newItemCount,
       parseTime,
       hostId: this.appConfig.serverConfig.hostId,
-      sort: currentItem.sellPrice == itemOrderHistory?.sell_order_price ? '0' : '1',
+      sort: currentItem.sellPrice == itemOrderHistory.sell_order_price ? '0' : '1',
       countChnange: `${currentItem.count}->${newItemCount}`,
       reciveTime: parseTime,
       isIncrease: true,
       showlink: currentItem.url,
       apiUrl: `${this.baseUrl}${currentItem.nameId}`,
-      price: itemOrderHistory?.buy_order_price,
-      wastage: itemOrderHistory?.sell_order_price,
+      price: itemOrderHistory.sell_order_price,
+      wastage: itemOrderHistory.buy_order_price,
     };
-    this.sendRequest(JSON.stringify({ itemList: [apiItem] }), baseUrl);
-  }
-
-  sendRequest(payload: string, baseUrl: string): void {
-    const query = new URLSearchParams([['content', base64Encode(payload)]]);
+    const apiItemEncoded: string = base64Encode(JSON.stringify({ itemList: [apiItem] }));
+    const query = new URLSearchParams([['content', apiItemEncoded]]);
+    const baseUrl = itemOrderHistory.success === 999 ? 'http://192.168.0.205:9012' : this.appConfig.serverConfig.serverUrl;
     const serverApiUrl = `${baseUrl}/api/server/dotnet/itemChange`;
     console.info(`calling API '${serverApiUrl}' with param: '${query.toString()}'`);
     got.get(serverApiUrl, { query });
@@ -124,7 +122,7 @@ export interface ApiItem {
   reciveTime: string;
   isIncrease: boolean;
   showlink: string;
-  price?: string;
+  price: string;
   apiUrl: string;
   checkUrl?: string;
   sort?: string;
