@@ -6,11 +6,10 @@ import { base64Encode } from '../common/utils';
 import { URLSearchParams } from 'url';
 import { Retryable } from 'typescript-retry-decorator';
 import { AppConfig, ItemToScan } from '../types';
-import { ConfigInjectionToken } from '../common/constants';
 
 @Service()
 export class ItemOrderHistoryService {
-  @Inject(ConfigInjectionToken) appConfig: AppConfig;
+  appConfig: AppConfig;
 
   // @Inject()
   // emailService: EmailService;
@@ -30,7 +29,7 @@ export class ItemOrderHistoryService {
     try {
       const itemOrderHistory: ItemOrderHistory = await this.getItemById(currentItem.nameId);
       const newItemCount: number = itemOrderHistory.sell_order_count === 0 ? 0 : parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
-      console.info(`###'${newItemCount}': ${currentItem.description.padEnd(40, '.')}`);
+      console.info(`###'${newItemCount}': ${currentItem.description.padEnd(40, '.')} ${new Date().toLocaleTimeString()}`);
       if (currentItem.count !== undefined && currentItem.count! >= 0 && currentItem.count! < newItemCount) {
         const msg = `${parseTime} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
         /*

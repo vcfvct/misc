@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import Container from 'typedi';
-import { ConfigInjectionToken, EmailProfileInjectionToken } from './common/constants';
+import { EmailProfileInjectionToken } from './common/constants';
 import { TencentEmail1 } from './config/email.config';
 import { ItemOrderHistoryService } from './service/item-order-history.service';
 const globalTunnel = require('global-tunnel-ng');
@@ -27,8 +27,8 @@ if (args.proxy) {
 (async () => {
   Container.set(EmailProfileInjectionToken, TencentEmail1);
   const configFile = await import(`./config/config${args.config ?? 1}`);
-  Container.set(ConfigInjectionToken, configFile.appConfig);
   const itemOrderHistoryService: ItemOrderHistoryService = Container.get(ItemOrderHistoryService);
+  itemOrderHistoryService.appConfig = configFile.appConfig;
   itemOrderHistoryService.scanItems(0);
 })();
 
