@@ -47,7 +47,7 @@ export class ItemOrderHistoryService {
       currentItem.sellPrice = itemOrderHistory.sell_order_price;
     } catch (e) {
       console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
-    this.callItemChangeApi(currentItem, -1, '', { 'buy_order_price': e.message, success: 999 } as any)
+      this.callItemChangeApi(currentItem, -1, new Date().toLocaleString(), { 'buy_order_price': e.message, success: 999 } as any);
     }
     setTimeout(() => this.scanItems(++itemIndex), this.appConfig.scanInterval * 1000);
   }
