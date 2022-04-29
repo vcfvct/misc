@@ -9,12 +9,15 @@
 // @grant GM_notification
 // ==/UserScript==
 
+GM_addStyle('#info-banner {position: fixed; top: 0; height: 40px; width: 100%;  background-color: yellow; color: black; border-radius: 6px; font-size: 2em!important; text-align:center; z-index: 403;}');
+
 (async () => {
 	const targetButtonSelector = 'button.mb-8';
 	await waitFor(targetButtonSelector);
+	await sleep(500); // button is enabled after the availability api call, need some explicit wait.
 	const selectButtons = Array.from(document.querySelectorAll(targetButtonSelector));
 	const disabledButtons = selectButtons.filter(b => b.getAttribute('disabled') === 'disabled');
-	// console.log(selectButtons.length, disabledButtons.length);
+	console.log(selectButtons.length, disabledButtons.length);
 	if (selectButtons.length === disabledButtons.length) {
 		const refreshInterval = 5; // 页面刷新间隔
 		console.log(`Not available, sleep and refresh --- ${new Date().toISOString()}`);
@@ -36,6 +39,11 @@
 			this.close();
 		}
 		GM_notification(notificationDetails);
+		// create info banner
+		const infoBanner = createDomElement(`<div id='info-banner'><h1>New Room available!</h1></div>`);
+		console.log(infoBanner);
+		document.body.appendChild(infoBanner);
+
 	}
 })();
 
@@ -58,3 +66,12 @@ function waitFor(selector) {
 		}
 	});
 }
+
+/**
+ * create a dom element by dom string
+ */
+function createDomElement(domString) {
+	return new DOMParser().parseFromString(domString, 'text/html').documentElement;
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
