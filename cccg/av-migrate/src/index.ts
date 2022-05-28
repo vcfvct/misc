@@ -57,13 +57,13 @@ async function handleUrlInBody(): Promise<Array<string>> {
     const body = html.content;
     if(body.includes(s3Url)){
       const newBody = body.replace(new RegExp(s3Url, 'g'), 'https://www.cccgermantown.org/s3/');
-      return `UPDATE ${bodyCopyTable} SET body_value='${newBody}' WHERE entity_id=${html.id};`; 
+      return `UPDATE ${bodyCopyTable} SET body_value='${newBody}' WHERE entity_id=${html.id};`;
     }
     return '';
   });
 };
 
-interface ContentTuple {
+export interface ContentTuple {
   id: number;
   content: string;
 }
