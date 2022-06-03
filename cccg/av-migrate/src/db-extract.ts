@@ -109,7 +109,7 @@ export interface PodCastMeta {
   title: string;
   body: string;
   author: string;
-  eventDate: string;
+  eventDate: Date;
   eventName: string;
   audio?: string;
   video?: string;
