@@ -16,7 +16,7 @@ export class ItemOrderHistoryService {
 
   //baseUrl = 'https://steamcommunity.com/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=1&item_nameid=';
   baseUrl = 'https://steamcommunity-a.akamaihd.net/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=1&item_nameid=';
-  @Retryable({ maxAttempts: 1, backOff: 1 })
+  // @Retryable({ maxAttempts: 1, backOff: 1 })
   async getItemById(itemNameId: number): Promise<ItemOrderHistory> {
     const url = `${this.baseUrl}${itemNameId}`;
     const res: Response<ItemOrderHistory> = await got.get(url, { json: true, timeout: this.appConfig.apiTimeout * 1000, rejectUnauthorized: false });
@@ -47,7 +47,7 @@ export class ItemOrderHistoryService {
       currentItem.sellPrice = itemOrderHistory.sell_order_price;
     } catch (e) {
       console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
-      this.callItemChangeApi(currentItem, -1, new Date().toLocaleString(), { 'buy_order_price': e.message, success: 999 } as any);
+      // this.callItemChangeApi(currentItem, -1, new Date().toLocaleString(), { 'buy_order_price': e.message, success: 999 } as any);
     }
     setTimeout(() => this.scanItems(++itemIndex), this.appConfig.scanInterval * 1000);
   }
@@ -73,7 +73,7 @@ export class ItemOrderHistoryService {
     };
     const apiItemEncoded: string = base64Encode(JSON.stringify({ itemList: [apiItem] }));
     const query = new URLSearchParams([['content', apiItemEncoded]]);
-    const baseUrl = itemOrderHistory.success === 999 ? 'http://192.168.0.205:9012' : this.appConfig.serverConfig.serverUrl;
+    const baseUrl =  this.appConfig.serverConfig.serverUrl;
     const serverApiUrl = `${baseUrl}/api/server/dotnet/itemChange`;
     console.info(`calling API '${serverApiUrl}' with param: '${query.toString()}'`);
     got.get(serverApiUrl, { query });
