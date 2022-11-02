@@ -14,7 +14,7 @@ export class ItemOrderHistoryService {
   // @Inject()
   // emailService: EmailService;
 
-  //baseUrl = 'https://steamcommunity.com/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=1&item_nameid=';
+  // baseUrl = 'https://steamcommunity.com/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=1&item_nameid=';
   baseUrl = 'https://steamcommunity-a.akamaihd.net/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=1&item_nameid=';
   // @Retryable({ maxAttempts: 1, backOff: 1 })
   async getItemById(itemNameId: number): Promise<ItemOrderHistory> {
@@ -27,29 +27,49 @@ export class ItemOrderHistoryService {
     const currentItem: ItemToScan = this.appConfig.items[itemIndex % this.appConfig.items.length];
     try {
       const itemOrderHistory: ItemOrderHistory = await this.getItemById(currentItem.nameId);
-      const newItemCount: number = itemOrderHistory.sell_order_count === 0 ? 0 : parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
-      console.info(`###'${newItemCount}': ${currentItem.description.padEnd(40, '.')}`);
-      if (currentItem.count !== undefined && currentItem.count! >= 0 && currentItem.count! < newItemCount) {
-        const parseTime: string = new Date().toLocaleString();
-        const msg = `${parseTime} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
-        /*
-         * this.emailService.sendEmail(msg, `
-         *   <a href="${currentItem.url}">购买链接</a>
-         *   <br/> ${msg}
-         *   <br/> <a href="https://steamcommunity-a.akamaihd.net/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=23&item_nameid=${currentItem.nameId}">API链接</a>
-         *   <br/>`,
-         * );
-         */
-        // notify server on item change
-        this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory);
-      }
-      currentItem.count = newItemCount;
-      currentItem.sellPrice = itemOrderHistory.sell_order_price;
+      this.handleNewItem(currentItem, itemOrderHistory);
     } catch (e) {
       console.error(`刷新物品'${currentItem.description}'错误: ${e.message}`);
       // this.callItemChangeApi(currentItem, -1, new Date().toLocaleString(), { 'buy_order_price': e.message, success: 999 } as any);
     }
     setTimeout(() => this.scanItems(++itemIndex), this.appConfig.scanInterval * 1000);
+  }
+
+  // 扫描所有配置的物品.
+  async scanAll(): Promise<void> {
+    const itemPromises = this.appConfig.items.map(item => this.getItemById(item.nameId));
+    const results = await Promise.allSettled(itemPromises);
+    results.forEach((settledResult, index) => {
+      const currentItem = this.appConfig.items[index];
+      if (settledResult.status === 'fulfilled') {
+        this.handleNewItem(currentItem, settledResult.value);
+      } else {
+        console.error(`Error getting count for ${currentItem.description}`);
+      }
+    });
+
+    setTimeout(() => this.scanAll(), this.appConfig.scanInterval * 1000);
+  }
+
+  handleNewItem(currentItem: ItemToScan, itemOrderHistory: ItemOrderHistory): void {
+    const newItemCount: number = itemOrderHistory.sell_order_count === 0 ? 0 : parseInt(itemOrderHistory.sell_order_count.replace(/,/g, ''));
+    console.info(`###'${newItemCount}': ${currentItem.description.padEnd(40, '.')} '${new Date().toLocaleString()}'`);
+    if (currentItem.count !== undefined && currentItem.count! >= 0 && currentItem.count! < newItemCount) {
+      const parseTime: string = new Date().toLocaleString();
+      const msg = `${parseTime} 数量变化:${currentItem.count}->${newItemCount}-${currentItem.description} 最低求购价: ${itemOrderHistory.buy_order_price}`;
+      /*
+       * this.emailService.sendEmail(msg, `
+       *   <a href="${currentItem.url}">购买链接</a>
+       *   <br/> ${msg}
+       *   <br/> <a href="https://steamcommunity-a.akamaihd.net/market/itemordershistogram?norender=1&country=HK&language=schinese&currency=23&item_nameid=${currentItem.nameId}">API链接</a>
+       *   <br/>`,
+       * );
+       */
+      // notify server on item change
+      this.callItemChangeApi(currentItem, newItemCount, parseTime, itemOrderHistory);
+    }
+    currentItem.count = newItemCount;
+    currentItem.sellPrice = itemOrderHistory.sell_order_price;
   }
 
   callItemChangeApi(currentItem: ItemToScan, newItemCount: number, parseTime: string, itemOrderHistory: ItemOrderHistory): void {
@@ -73,7 +93,7 @@ export class ItemOrderHistoryService {
     };
     const apiItemEncoded: string = base64Encode(JSON.stringify({ itemList: [apiItem] }));
     const query = new URLSearchParams([['content', apiItemEncoded]]);
-    const baseUrl =  this.appConfig.serverConfig.serverUrl;
+    const baseUrl = this.appConfig.serverConfig.serverUrl;
     const serverApiUrl = `${baseUrl}/api/server/dotnet/itemChange`;
     console.info(`calling API '${serverApiUrl}' with param: '${query.toString()}'`);
     got.get(serverApiUrl, { query });

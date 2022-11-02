@@ -1,7 +1,7 @@
 import { AppConfig } from '../types';
 
 export const appConfig: AppConfig = {
-  scanInterval: 0.3,
+  scanInterval: 5,
   apiTimeout: 2,
   serverConfig: {
     serverUrl: 'http://47.75.97.6:9012',

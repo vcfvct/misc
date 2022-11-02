@@ -29,6 +29,6 @@ if (args.proxy) {
   const configFile = await import(`./config/config${args.config ?? 1}`);
   const itemOrderHistoryService: ItemOrderHistoryService = Container.get(ItemOrderHistoryService);
   itemOrderHistoryService.appConfig = configFile.appConfig;
-  itemOrderHistoryService.scanItems(0);
+  itemOrderHistoryService.scanAll();
 })();
 
