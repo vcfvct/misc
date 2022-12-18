@@ -8,4 +8,4 @@
 
 
 ## certbot
-* `certbot --nginx -d joannali.ml -d www.joannali.ml`
+* `certbot --nginx -d joannali.eu.org -d www.joannali.`eu.org
