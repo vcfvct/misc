@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-d=`date +%Y%m%d`
-sermon_dir=/mnt/c/Users/Worship/Documents/sermons
-echo output file: ${d}
+# set d and sermon_dir
+source ./date-dir.sh
+
+echo output file date: ${d}
 
 HandBrakeCLI \
   -i ${sermon_dir}/raw.mp4 \
