@@ -1,15 +1,22 @@
 # deploy JupyterHub to EKS
 
-## create cluster
-* `eksctl create cluster --name han-cluster --region us-east-1 --node-type t3.medium`
+## create/delete cluster
+
+* from config file: `eksctl create cluster -f cluster.yaml`
 
 ### config
+
 * eks info at `~/.kube/config`
 * get service `kubectl get svc`
 * get pods `kubectl get pods -A -o wide`
 * get nodes `kubectl get nodes -o wide`
 
+## deploy the ebs csi driver for persistent storage
+
+* `kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=master"`
+
 ## helm
+
 ```
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
 helm repo update
@@ -19,6 +26,7 @@ helm repo update
 * use `helm search repo jupyterhub` to see different jupyterhub chart versions.
 
 ### installation
+
 * download the chart parameters: `helm show values jupyterhub/jupyterhub > jupyterhub.yaml` and tweak.
 * install with: 
 ```
@@ -31,7 +39,9 @@ helm upgrade --cleanup-on-fail \
 ```
 
 ### Post-installation checklist
+
 * set default namespace `kubectl config set-context $(kubectl config current-context) --namespace sam-jh`
+* get web ip/url: `kubectl get svc proxy-public`
 
   - Verify that created Pods enter a Running state:
 
@@ -65,3 +75,25 @@ helm upgrade --cleanup-on-fail \
       kubectl --namespace=sam-jh port-forward service/proxy-public 8080:http
 
     Try insecure HTTP access: http://localhost:8080
+
+## Delete cluster
+
+* delete cluster: `eksctl delete cluster --name han-cluster --region us-east-2`. Note: delete by using `-f cluster.yaml` would getting `pod unevictable` error and retry every 1 min forever.
+
+### orphan EBS volumes
+
+* list `available` volumes: `aws ec2 describe-volumes --filter "Name=status,Values=available" --query "Volumes[*].{ID:VolumeId}"`
+* preview deletion(bash/zsh)
+  ```
+  for volume in `aws ec2 describe-volumes --filter "Name=status,Values=available" --query "Volumes[*].{ID:VolumeId}" --output text` 
+  do                                                                              
+  echo "aws ec2 delete-volume --volume-id $volume"                                
+  done
+  ```
+* delete(bash/zsh)
+  ```
+  for volume in `aws ec2 describe-volumes --filter "Name=status,Values=available" --query "Volumes[*].{ID:VolumeId}" --output text` 
+  do                                                                              
+  aws ec2 delete-volume --volume-id $volume
+  done
+  ```
