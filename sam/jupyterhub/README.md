@@ -78,7 +78,7 @@ helm upgrade --cleanup-on-fail \
 
 ## Delete cluster
 
-* delete cluster: `eksctl delete cluster --name han-cluster --region us-east-2`. Note: delete by using `-f cluster.yaml` would getting `pod unevictable` error and retry every 1 min forever.
+* delete cluster: `eksctl delete cluster --name han-cluster --region us-east-1`. Note: delete by using `-f cluster.yaml` would getting `pod unevictable` error and retry every 1 min forever.
 
 ### orphan EBS volumes
 

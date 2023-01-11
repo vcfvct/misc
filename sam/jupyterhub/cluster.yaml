@@ -4,7 +4,7 @@ kind: ClusterConfig
 
 metadata:
   name: han-cluster
-  region: us-east-2
+  region: us-east-1
 
 iam:
   withOIDC: true
@@ -54,33 +54,33 @@ iam:
             Resource: '*'
 
 managedNodeGroups:
-  - name: ng-us-east-2a
+  - name: ng-us-east-1a
     instanceType: t3.medium
     volumeSize: 30
     desiredCapacity: 1
     privateNetworking: true
     availabilityZones:
-      - us-east-2a
+      - us-east-1a
     tags:
       k8s.io/cluster-autoscaler/enabled: "true"
       k8s.io/cluster-autoscaler/jupyterhub: "owned"
-  - name: ng-us-east-2b
+  - name: ng-us-east-1b
     instanceType: t3.medium
     volumeSize: 30
     desiredCapacity: 1
     privateNetworking: true
     availabilityZones:
-      - us-east-2b
+      - us-east-1b
     tags:
       k8s.io/cluster-autoscaler/enabled: "true"
       k8s.io/cluster-autoscaler/jupyterhub: "owned"
-  # - name: ng-us-east-2c
+  # - name: ng-us-east-1c
     # instanceType: t3.medium
     # volumeSize: 30
     # desiredCapacity: 1
     # privateNetworking: true
     # availabilityZones:
-      # - us-east-2c
+      # - us-east-1c
     # tags:
       # k8s.io/cluster-autoscaler/enabled: "true"
       # k8s.io/cluster-autoscaler/jupyterhub: "owned"
