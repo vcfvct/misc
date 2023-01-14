@@ -40,8 +40,9 @@ helm upgrade --cleanup-on-fail \
 
 ### Post-installation checklist
 
-* set default namespace `kubectl config set-context $(kubectl config current-context) --namespace sam-jh`
-* get web ip/url: `kubectl get svc proxy-public`
+  * set default namespace `kubectl config set-context $(kubectl config current-context) --namespace sam-jh`
+  * get web ip/url: `kubectl get svc proxy-public`
+  * get persistent volume claim: `kubectl get pvc`
 
   - Verify that created Pods enter a Running state:
 
@@ -97,3 +98,9 @@ helm upgrade --cleanup-on-fail \
   aws ec2 delete-volume --volume-id $volume
   done
   ```
+
+## References
+* [official z2jh zero to jupyterhub doc](https://z2jh.jupyter.org/en/stable/jupyterhub/index.html) which has a lot of details but a bit outdated.
+* [Zero to Jupyterhub in Kubernetes video](https://www.youtube.com/watch?v=Da1qn7-RHvY) which installs jupyterhub at local k8s. A lot of useful commands.
+* [Deploying JupyterHub to Amazon EKS blog](Deploying JupyterHub to Amazon EKS), which contains the IAM config for EBS CSI driver.
+* [Using JupyterHub with a Private Container Registry](https://saturncloud.io/blog/using-jupyterhub-with-a-private-container-registry/), change image source from public to private ECR. The site also contains a series of blogs from basic setup to ssl to [list of resources](https://saturncloud.io/blog/how-to-setup-jupyterhub-on-aws/) etc.
