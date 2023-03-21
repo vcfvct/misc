@@ -14,3 +14,9 @@
 3. Install update using OPLocalUpdate apk (the one that does not auto reboot and lets you install zip from storage)
 4. Use Magisk to install to inactive slot (After OTA)
 5. Reboot
+
+## pixel 6a
+* platform tools [download url](https://dl.google.com/android/repository/platform-tools_r33.0.3-windows.zip). change the version in the url to the desired one according to the [release history](https://developer.android.com/studio/releases/platform-tools).
+* [pixel flasher](https://github.com/badabing2005/PixelFlasher/releases).
+* [download image](https://developers.google.com/android/images#bluejay).
+* on windows, [download driver](https://developer.android.com/studio/run/win-usb) and install via `device manager` so that *fastboot* can find device.
