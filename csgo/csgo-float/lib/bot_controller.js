@@ -1,5 +1,7 @@
 const Bot = require('./bot'),
-    EventEmitter = require('events').EventEmitter;
+    utils = require('./utils'),
+    EventEmitter = require('events').EventEmitter,
+    errors = require('../errors');
 
 class BotController extends EventEmitter {
     constructor() {
@@ -11,7 +13,7 @@ class BotController extends EventEmitter {
 
     addBot(loginData, settings) {
         let bot = new Bot(settings);
-        bot.logIn(loginData.user, loginData.pass, loginData.auth, loginData.show_in_game);
+        bot.logIn(loginData.user, loginData.pass, loginData.auth);
 
         bot.on('ready', () => {
             if (!this.readyEvent && this.hasBotOnline()) {
@@ -31,7 +33,8 @@ class BotController extends EventEmitter {
     }
 
     getFreeBot() {
-        for (let bot of this.bots) {
+        // Shuffle array to evenly distribute requests
+        for (let bot of utils.shuffleArray(this.bots)) {
             if (!bot.busy && bot.ready) return bot;
         }
 
@@ -46,11 +49,21 @@ class BotController extends EventEmitter {
         return false;
     }
 
+    getReadyAmount() {
+        let amount = 0;
+        for (const bot of this.bots) {
+            if (bot.ready) {
+                amount++;
+            }
+        }
+        return amount;
+    }
+
     lookupFloat(data) {
         let freeBot = this.getFreeBot();
 
         if (freeBot) return freeBot.sendFloatRequest(data);
-        else return Promise.reject('There are no bots to fulfill this request');
+        else return Promise.reject(errors.NoBotsAvailable);
     }
 }
 
