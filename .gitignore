@@ -8,3 +8,7 @@ package-lock.json
 *.pem
 
 .terraform/
+
+# python
+venv/
+__pycache__
