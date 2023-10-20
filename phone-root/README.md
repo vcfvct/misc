@@ -20,3 +20,8 @@
 * [pixel flasher](https://github.com/badabing2005/PixelFlasher/releases).
 * [download image](https://developers.google.com/android/images#bluejay).
 * on windows, [download driver](https://developer.android.com/studio/run/win-usb) and install via `device manager` so that *fastboot* can find device.
+
+## WSA
+* install [custom wsa build with magisk](https://github.com/MustardChef/WSABuilds).
+* module cannot be installed correctly, have to follow this [issue to copy modules from the 'modules_update' to `/data/adb/modules/(yeur installed module)`](https://github.com/MustardChef/WSABuilds/issues/154#issuecomment-1729105000).  And this is the [original tutorial video in bilibil](https://www.bilibili.com/video/BV1GV4y1v7ys/).
+* enable `share user folders` feature in WSA Advanced settings so that windows home folder is available in Android.
