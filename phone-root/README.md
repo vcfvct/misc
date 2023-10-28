@@ -25,3 +25,11 @@
 * install [custom wsa build with magisk](https://github.com/MustardChef/WSABuilds).
 * module cannot be installed correctly, have to follow this [issue to copy modules from the 'modules_update' to `/data/adb/modules/(yeur installed module)`](https://github.com/MustardChef/WSABuilds/issues/154#issuecomment-1729105000).  And this is the [original tutorial video in bilibil](https://www.bilibili.com/video/BV1GV4y1v7ys/).
 * enable `share user folders` feature in WSA Advanced settings so that windows home folder is available in Android.
+* When Windows behaves odd, download the Windows 11 `Disk Image (ISO) for x64 devices`, then run the `setup.exe` inside the ISO file to do in-place update.
+
+## syncthing
+[Reference thread](https://forum.syncthing.net/t/setting-up-multiple-phones-to-sync-to-an-og-google-pixel-for-google-photos-unlimited/16857).
+1. install syncthing-folk on both devices.
+2. on receiving device, add the sending device.
+3. on sending device, Add the target folder that needs to be synced and set it to `Send Only`.
+4. The receiving device should now receive a `push notification`. Accept the push notification, select target folder and set it to `Receive Only`.
