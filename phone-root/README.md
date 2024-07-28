@@ -1,5 +1,14 @@
 # Phone misc
 
+## For Android 14+ with init_boot.img
+[detail steps in droidwin](https://droidwin.com/how-to-root-oneplus-12-via-magisk-patched-init-boot/#STEP_7_Patch_OnePlus_12_Init_Bootimg_via_Magisk)
+
+```sh
+adb reboot bootloader
+fastboot devices
+fastboot flash init_boot magisk_patched_boot.img
+```
+
 ## magisk stock backup does not exist
 * This happens when patched boot img is flashed directly via `fastboot` instead of via OTA/magisk.
 * The backup image is typically stored under `/data/magisk_backup_${SHA1}` where the `SHA1` is under `/dev/SomeString/.magisk/config.`  The Path can be retrieve with `cat $(magisk --path)/.magisk/config` according to [this gist](https://gist.github.com/pexcn/71d7d242c5e805d9346d2dc9db17fb90)

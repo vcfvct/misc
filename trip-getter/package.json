@@ -4,13 +4,13 @@
   "description": "get trip",
   "main": "dist/index.js",
   "scripts": {
-    "start": "ts-node src/index.ts"
+    "start": "bun src/index.ts"
   },
   "author": "Han Li",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^17.0.27",
-    "ts-node": "^10.7.0",
-    "typescipt": "^1.0.0"
-  }
+    "typescript": "^5.0.0",
+    "@types/node": "^22.0.0"
+  },
+  "dependencies": { "playwright": "^1.45.3" }
 }
