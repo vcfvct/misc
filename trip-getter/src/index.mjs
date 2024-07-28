@@ -11,9 +11,15 @@
 import { chromium } from 'playwright';
 
 (async () => {
-	const browser = await chromium.launch({headless: false});
+	const browser = await chromium.launch({headless: false, slowMo: 500});
 	const page = await browser.newPage();
 	await page.goto('https://reservations.ahlsmsworld.com/Yosemite/');
-	await page.screenshot({ path: 'example.png' });
+	await page.waitForSelector('#box-widget_InitialProductSelection');
+	await page.selectOption('#box-widget_InitialProductSelection', { value: '2:_ALLPROPS_' });
+	await page.fill('#box-widget_ArrivalDate', '07/29/2024');
+	await page.fill('#box-widget_DepartureDate', '07/30/2024');
+  await page.click('input[value="Check Availability"]:not([disabled])');
+	await page.waitForSelector('.panel-search-details')
+	await page.screenshot({ path: 'local/example.png' });
 	await browser.close();
 })();
