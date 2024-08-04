@@ -12,5 +12,5 @@
     "typescript": "^5.0.0",
     "@types/node": "^22.0.0"
   },
-  "dependencies": { "playwright": "^1.45.3" }
+  "dependencies": { "nodemailer": "^6.9.14", "playwright": "^1.45.3" }
 }
