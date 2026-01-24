@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title>Ivy's Snake Game</title>
+    <link rel="stylesheet" href="snake.css">
+</head>
+<body>
+    <h1>Ivy's Snake Game</h1>
+    <div id="score">Score: 0</div>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+        <div id="game-over">
+            <h2>Game Over</h2>
+            <div id="final-score">Score: 0</div>
+            <button onclick="resetGame()">Play Again</button>
+        </div>
+    </div>
+
+    <div class="mobile-controls-hint">Use arrow keys or swipe to move. Space to pause.</div>
+    <a href="javascript:history.back()">Back to Home</a>
+
+    <script src="snake.js"></script>
+</body>
+</html>
