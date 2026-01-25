@@ -35,8 +35,9 @@
 
         document.addEventListener('keydown', keyDownEvent);
 
-        canvas.addEventListener('touchstart', handleTouchStart, false);
-        canvas.addEventListener('touchmove', handleTouchMove, false);
+        // Use passive: false to ensure preventDefault works on Android/Chrome
+        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
 
         initGame();
 
@@ -223,11 +224,19 @@
         function handleTouchMove(evt) {
             if (!touchStartX || !touchStartY) return;
 
+            // Prevent default behavior (scrolling) immediately
+            evt.preventDefault();
+
             let touchEndX = evt.touches[0].clientX;
             let touchEndY = evt.touches[0].clientY;
 
             let xDiff = touchStartX - touchEndX;
             let yDiff = touchStartY - touchEndY;
+
+            // Add threshold to avoid accidental small twitches
+            if (Math.abs(xDiff) < 10 && Math.abs(yDiff) < 10) {
+                return;
+            }
 
             if (Math.abs(xDiff) > Math.abs(yDiff)) {
                 if (xDiff > 0) {
@@ -244,5 +253,4 @@
             }
             touchStartX = 0;
             touchStartY = 0;
-            evt.preventDefault();
         }
