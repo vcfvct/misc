@@ -16,7 +16,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      overflow-x: hidden;
+      overflow: hidden;
       position: relative;
     }
 
@@ -86,6 +86,56 @@
       border: 8px solid white;
       box-shadow: 0 10px 25px rgba(209, 73, 139, 0.4);
       transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      cursor: pointer;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      padding-top: 5vh;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      margin: auto;
+      display: block;
+      width: 90%;
+      max-width: 600px;
+      border-radius: 20px;
+      border: 5px solid #ffb3c6;
+      box-shadow: 0 0 30px rgba(255, 182, 193, 0.8);
+      animation: zoom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes zoom {
+      from {transform: scale(0.5); opacity: 0;}
+      to {transform: scale(1); opacity: 1;}
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 20px;
+      right: 35px;
+      color: #ffb3c6;
+      font-size: 50px;
+      font-weight: bold;
+      transition: 0.3s;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    .close-modal:hover,
+    .close-modal:focus {
+      color: #fff;
+      transform: scale(1.1);
     }
 
     .profile-img:hover {
@@ -181,7 +231,34 @@
     </div>
   </div>
 
+  <!-- Modal -->
+  <div id="imageModal" class="modal">
+    <span class="close-modal">&times;</span>
+    <img class="modal-content" id="modalImg">
+  </div>
+
   <script>
+    // Modal logic
+    const modal = document.getElementById("imageModal");
+    const img = document.querySelector(".profile-img");
+    const modalImg = document.getElementById("modalImg");
+    const closeModal = document.querySelector(".close-modal");
+
+    img.onclick = function() {
+      modal.style.display = "block";
+      modalImg.src = this.src;
+    }
+
+    closeModal.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    modal.onclick = function(e) {
+      if (e.target === modal) {
+        modal.style.display = "none";
+      }
+    }
+
     // Create random sparkles dynamically
     for(let i = 0; i < 25; i++) {
       let sparkle = document.createElement('div');
