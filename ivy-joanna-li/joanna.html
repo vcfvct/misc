@@ -1,61 +1,197 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joanna's Magical World 🎀</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      background-image: url('https://st.depositphotos.com/2039187/2006/i/600/depositphotos_20060343-stock-photo-soccer-field-or-football-field.jpg');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-position: center center;
-      background-attachment: fixed;
-      height: 100vh;
-      overflow: hidden;
+      /* Soft pink to purple gradient with a magical feel */
+      background: linear-gradient(135deg, #ffe6f2 0%, #f4c2d7 50%, #e0c3fc 100%);
+      font-family: 'Quicksand', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      position: relative;
     }
 
-    #main-image {
-      width: 400px;
-      height: 400px;
+    /* Sparkles background effect */
+    .sparkle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: white;
       border-radius: 50%;
+      box-shadow: 0 0 8px 3px rgba(255, 255, 255, 0.8);
+      animation: twinkle 3s infinite alternate;
+      z-index: 0;
     }
 
-    #main-heading {
-      color: pink;
-      margin-left: 50px;
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 1; transform: scale(1.5); }
     }
 
-    .x {
-      animation: x 7s linear infinite alternate;
+    .container {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 30px;
+      box-shadow: 0 15px 35px rgba(255, 182, 193, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.9);
+      text-align: center;
+      max-width: 600px;
+      width: 90%;
+      z-index: 10;
+      border: 3px solid #ffb3c6;
+      animation: float 6s ease-in-out infinite;
     }
 
-    .y {
-      animation: y 5s linear infinite alternate;
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0px); }
     }
 
-    @keyframes x {
-      100% {
-        transform: translateX(calc(100vw - 400px));
-      }
+    h1 {
+      font-family: 'Dancing Script', cursive;
+      color: #d1498b;
+      font-size: 3.8rem;
+      margin: 0 0 10px 0;
+      text-shadow: 2px 2px 4px rgba(209, 73, 139, 0.2);
     }
 
-    @keyframes y {
-      100% {
-        transform: translateY(calc(100vh - 400px));
-      }
+    .subtitle {
+      color: #9d4edd;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+
+    .profile-img-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 30px;
+    }
+
+    .profile-img {
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 8px solid white;
+      box-shadow: 0 10px 25px rgba(209, 73, 139, 0.4);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .profile-img:hover {
+      transform: scale(1.08) rotate(5deg);
+    }
+
+    .decor {
+      position: absolute;
+      font-size: 3.5rem;
+      animation: spin 12s linear infinite;
+    }
+
+    .decor.top-left { top: -25px; left: -25px; animation-direction: reverse; }
+    .decor.bottom-right { bottom: -25px; right: -25px; }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    .game-btn {
+      display: inline-block;
+      background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+      color: #d1498b;
+      text-decoration: none;
+      font-size: 1.4rem;
+      font-weight: bold;
+      padding: 15px 40px;
+      border-radius: 50px;
+      box-shadow: 0 8px 20px rgba(255, 154, 158, 0.5);
+      transition: all 0.3s;
+      border: 3px solid white;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    .game-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(255, 154, 158, 0.7);
+      background: linear-gradient(45deg, #fecfef 0%, #ff9a9e 100%);
+    }
+
+    .footer {
+      margin-top: 30px;
+      color: #d1498b;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    /* Floating dance motifs */
+    .motif {
+      position: absolute;
+      font-size: 3rem;
+      opacity: 0.7;
+      animation: float-around 25s linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes float-around {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(40vw, 20vh) rotate(90deg); }
+      50% { transform: translate(80vw, -10vh) rotate(180deg); }
+      75% { transform: translate(30vw, -40vh) rotate(270deg); }
+      100% { transform: translate(0, 0) rotate(360deg); }
     }
   </style>
 </head>
-
 <body>
-  <div class="x">
-    <h2 class="y" id="main-heading">Welcome to Joanna Li's Home</h2>
-    <div style="width: 400px; text-align: center; margin-bottom: 20px;">
-        <a href="snake.html?name=Joanna&img=joanna-game-head.jpeg" style="z-index: 100; position: relative; color: pink; font-size: 1.5em; text-decoration: none; border: 2px solid pink; padding: 10px 20px; border-radius: 5px; background-color: rgba(0,0,0,0.5);">Play Joanna's Snake Game 🐍</a>
-    </div>
-    <img class="y" id="main-image" title="main image"
-      src="https://lh3.googleusercontent.com/pw/AP1GczPV_Syf72VI2ADt9661v36G1CshxT2JemXC_i8LVf4sbBNQopCOHwH6kmFwxJju3SY3xxSgdtRGc6WUFxnYQLQPHk-sR1qDVbwuHCMvWRkjxi59n9CSjBde6LRzPtsmAbp0vf0OCA_gKzRsLywowYB9KQ=w1246-h1660-s-no-gm?authuser=0" />
-  </div>
-</body>
 
+  <!-- Background sparkles & motifs -->
+  <div class="motif" style="top: 10%; left: 10%;">🩰</div>
+  <div class="motif" style="top: 60%; left: 80%; animation-duration: 25s; font-size: 3.5rem;">💖</div>
+  <div class="motif" style="top: 80%; left: 20%; animation-duration: 18s; animation-direction: reverse;">✨</div>
+  <div class="motif" style="top: 20%; left: 70%; animation-duration: 22s;">🎶</div>
+  <div class="motif" style="top: 40%; left: 5%; animation-duration: 30s; font-size: 2.5rem;">👑</div>
+
+  <div class="container">
+    <h1>Welcome to Joanna's World</h1>
+    <div class="subtitle">Dancing, Dreaming & Sparkles! ✨</div>
+    
+    <div class="profile-img-container">
+      <span class="decor top-left">🎀</span>
+      <img class="profile-img" src="https://lh3.googleusercontent.com/pw/AP1GczPV_Syf72VI2ADt9661v36G1CshxT2JemXC_i8LVf4sbBNQopCOHwH6kmFwxJju3SY3xxSgdtRGc6WUFxnYQLQPHk-sR1qDVbwuHCMvWRkjxi59n9CSjBde6LRzPtsmAbp0vf0OCA_gKzRsLywowYB9KQ=w1246-h1660-s-no-gm?authuser=0" alt="Joanna">
+      <span class="decor bottom-right">🌸</span>
+    </div>
+
+    <div>
+      <a href="snake.html?name=Joanna&img=joanna-game-head.jpeg" class="game-btn">Play My Snake Game 🐍</a>
+    </div>
+
+    <div class="footer">
+      Keep Dancing and Shining! 💫
+    </div>
+  </div>
+
+  <script>
+    // Create random sparkles dynamically
+    for(let i = 0; i < 25; i++) {
+      let sparkle = document.createElement('div');
+      sparkle.className = 'sparkle';
+      sparkle.style.top = Math.random() * 100 + 'vh';
+      sparkle.style.left = Math.random() * 100 + 'vw';
+      sparkle.style.animationDelay = (Math.random() * 3) + 's';
+      sparkle.style.animationDuration = (2 + Math.random() * 3) + 's';
+      document.body.appendChild(sparkle);
+    }
+  </script>
+</body>
 </html>

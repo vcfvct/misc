@@ -72,6 +72,9 @@
             ctx.fillText("Press Space to Resume", canvas.width/2, canvas.height/2 + 50);
         }
 
+        // Create a fun bouncing value for the food
+        let bouncePhase = 0;
+
         function drawGame() {
             if (isPaused) {
                 drawPaused();
@@ -83,6 +86,9 @@
                 handleGameOver();
                 return;
             }
+
+            // Update bounce phase every frame
+            bouncePhase += 0.2;
 
             clearCanvas();
             drawFood();
@@ -97,8 +103,44 @@
         }
 
         function clearCanvas() {
-            ctx.fillStyle = '#111';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Draw a checkerboard pattern using purple and pinkish-purple
+            for (let row = 0; row < tileCountY; row++) {
+                for (let col = 0; col < tileCountX; col++) {
+                    // Alternate colors based on the grid position
+                    if ((row + col) % 2 === 0) {
+                        ctx.fillStyle = '#2b1b3d'; // Dark purple
+                    } else {
+                        ctx.fillStyle = '#3a2245'; // Dark pinkish-purple
+                    }
+                    ctx.fillRect(col * gridSize, row * gridSize, gridSize, gridSize);
+                }
+            }
+        }
+
+        // Initialize audio contexts for eating sound
+        const eatSound = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playEatSound() {
+            if (eatSound.state === 'suspended') {
+                eatSound.resume();
+            }
+            
+            // Create a fun, bubbly "bloop" sound using Web Audio API
+            const oscillator = eatSound.createOscillator();
+            const gainNode = eatSound.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(400, eatSound.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, eatSound.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.3, eatSound.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, eatSound.currentTime + 0.1);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(eatSound.destination);
+            
+            oscillator.start();
+            oscillator.stop(eatSound.currentTime + 0.1);
         }
 
         function moveSnake() {
@@ -110,6 +152,7 @@
             if (head.x === food.x && head.y === food.y) {
                 score++;
                 scoreDisplay.innerText = 'Score: ' + score;
+                playEatSound(); // Play the fun sound!
                 placeFood();
             } else {
                 snake.pop();
@@ -122,28 +165,85 @@
             const headY = snake[0].y * gridSize;
 
             if (headImage.complete && headImage.naturalWidth !== 0) {
-                // Draw head centered and larger, without rotation
+                // Draw head centered and slightly bouncy based on movement
                 const visualSize = gridSize * 1.5;
                 const offset = (visualSize - gridSize) / 2;
-                ctx.drawImage(headImage, headX - offset, headY - offset, visualSize, visualSize);
+                
+                // Add a small rotation depending on direction
+                ctx.translate(headX + gridSize/2, headY + gridSize/2);
+                let rotation = 0;
+                if (dx === 1) rotation = 0;
+                else if (dx === -1) rotation = Math.PI;
+                else if (dy === -1) rotation = -Math.PI/2;
+                else if (dy === 1) rotation = Math.PI/2;
+                
+                ctx.rotate(rotation);
+                
+                // Clip the image to make the face completely round
+                ctx.beginPath();
+                ctx.arc(0, 0, visualSize/2, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.clip();
+                
+                ctx.drawImage(headImage, -visualSize/2, -visualSize/2, visualSize, visualSize);
+                
+                // Reset transform for the body
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
             } else {
-                ctx.fillStyle = 'green';
-                ctx.fillRect(headX, headY, gridSize - 2, gridSize - 2);
+                ctx.fillStyle = '#00ff88'; // Neon green head
+                ctx.beginPath();
+                ctx.roundRect(headX, headY, gridSize - 2, gridSize - 2, 8);
+                ctx.fill();
             }
             ctx.restore();
 
-            ctx.fillStyle = 'lime';
             for (let i = 1; i < snake.length; i++) {
-                ctx.fillRect(snake[i].x * gridSize, snake[i].y * gridSize, gridSize - 2, gridSize - 2);
+                // Alternating colors for the body to make it fun!
+                if (playerName === 'Joanna') {
+                    ctx.fillStyle = i % 2 === 0 ? '#ff9a9e' : '#fecfef'; // Pink and white for Joanna
+                } else {
+                    ctx.fillStyle = i % 2 === 0 ? '#00b8ff' : '#00ff88'; // Cyan and neon green for Ivy
+                }
+                
+                // Add a cute breathing/scaling effect to the body parts
+                const scale = 1 - (i * 0.01); 
+                const partSize = Math.max((gridSize - 4) * scale, gridSize/2);
+                const offset = (gridSize - partSize) / 2;
+                
+                ctx.beginPath();
+                ctx.roundRect(
+                    snake[i].x * gridSize + offset, 
+                    snake[i].y * gridSize + offset, 
+                    partSize, partSize, 
+                    partSize/2 // Circular body parts
+                );
+                ctx.fill();
             }
         }
 
         function drawFood() {
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
+            // Cute bouncing/pulsing apple
+            const bounceOffset = Math.sin(bouncePhase) * 3;
             const cx = food.x * gridSize + gridSize/2;
-            const cy = food.y * gridSize + gridSize/2;
-            ctx.arc(cx, cy, gridSize/2 - 2, 0, 2 * Math.PI);
+            const cy = food.y * gridSize + gridSize/2 + bounceOffset;
+            const radius = gridSize/2 - 2;
+
+            // Draw shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.ellipse(cx, food.y * gridSize + gridSize - 5, radius * 0.8, radius * 0.3, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw apple body
+            ctx.fillStyle = playerName === 'Joanna' ? '#ff4757' : '#ffd700'; // Red apple for Joanna, Gold coin for Ivy
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Add a shiny highlight
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.beginPath();
+            ctx.arc(cx - radius * 0.3, cy - radius * 0.3, radius * 0.3, 0, 2 * Math.PI);
             ctx.fill();
         }
 

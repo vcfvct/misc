@@ -1,200 +1,271 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-  <title>Welcome to Ivy Li's Home!</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ivy's Action Zone ⚽</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      width: 35em;
-      margin: 0 auto;
-      font-family: Tahoma, Verdana, Arial, sans-serif;
+    :root {
+      --primary: #00ff88;
+      --secondary: #00b8ff;
+      --dark: #0a0e17;
+      --light: #f4f4f9;
     }
-  </style>
-  <style>
+
     body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
-      background-color: black;
+      background-color: var(--dark);
+      font-family: 'Roboto', sans-serif;
+      color: var(--light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      position: relative;
     }
 
-    section {
-      height: 100%;
-      width: 100%;
+    /* Dynamic background with animated grid and shapes */
+    .bg-grid {
       position: absolute;
-      background: radial-gradient(#333, #000);
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: 
+        linear-gradient(rgba(0, 255, 136, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 136, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 0;
+      transform: perspective(500px) rotateX(60deg);
+      transform-origin: bottom;
+      animation: grid-move 10s linear infinite;
     }
 
-    .leaf {
+    @keyframes grid-move {
+      0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+      100% { transform: perspective(500px) rotateX(60deg) translateY(40px); }
+    }
+
+    /* Floating sports elements */
+    .sport-icon {
       position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
+      font-size: 2.5rem;
+      opacity: 0.2;
+      z-index: 1;
+      filter: grayscale(100%) brightness(200%);
+      animation: float 15s linear infinite;
     }
 
-    .leaf div {
-      position: absolute;
-      display: block;
+    @keyframes float {
+      0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.3; }
+      90% { opacity: 0.3; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
     }
 
-    .leaf div:nth-child(1) {
-      left: 20%;
-      animation: fall 15s linear infinite;
-      animation-delay: -2s;
-    }
-
-    .leaf div:nth-child(2) {
-      left: 70%;
-      animation: fall 15s linear infinite;
-      animation-delay: -4s;
-    }
-
-    .leaf div:nth-child(3) {
-      left: 10%;
-      animation: fall 20s linear infinite;
-      animation-delay: -7s;
-    }
-
-    .leaf div:nth-child(4) {
-      left: 50%;
-      animation: fall 18s linear infinite;
-      animation-delay: -5s;
-    }
-
-    .leaf div:nth-child(5) {
-      left: 85%;
-      animation: fall 14s linear infinite;
-      animation-delay: -5s;
-    }
-
-    .leaf div:nth-child(6) {
-      left: 15%;
-      animation: fall 16s linear infinite;
-      animation-delay: -10s;
-    }
-
-    .leaf div:nth-child(7) {
-      left: 90%;
-      animation: fall 15s linear infinite;
-      animation-delay: -4s;
-    }
-
-    @keyframes fall {
-      0% {
-        opacity: 1;
-        top: -10%;
-        transform: translateX (20px) rotate(0deg);
-      }
-
-      20% {
-        opacity: 0.8;
-        transform: translateX (-20px) rotate(45deg);
-      }
-
-      40% {
-        transform: translateX (-20px) rotate(90deg);
-      }
-
-      60% {
-        transform: translateX (-20px) rotate(135deg);
-      }
-
-      80% {
-        transform: translateX (-20px) rotate(180deg);
-      }
-
-      100% {
-        top: 110%;
-        transform: translateX (-20px) rotate(225deg);
-      }
-    }
-
-    .leaf1 {
-      transform: rotateX(180deg);
-    }
-
-    #center-content {
-      position: absolute;
-      top: 0;
-      width: 100%;
-      font-family: Tahoma, Verdana, Arial, sans-serif;
-      text-align: center;
-      color: #fff;
+    .container {
+      position: relative;
       z-index: 10;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 50px 40px;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 255, 136, 0.2);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 
+                  0 0 20px rgba(0, 255, 136, 0.1);
+      text-align: center;
+      max-width: 700px;
+      width: 90%;
+      transform: skewY(-2deg);
+      transition: transform 0.3s ease;
     }
+
+    .container:hover {
+      transform: skewY(0deg) translateY(-5px);
+      border-color: rgba(0, 255, 136, 0.4);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 
+                  0 0 30px rgba(0, 255, 136, 0.2);
+    }
+
+    .content-wrapper {
+      transform: skewY(2deg); /* Counter skew for content */
+      transition: transform 0.3s ease;
+    }
+    
+    .container:hover .content-wrapper {
+      transform: skewY(0deg);
+    }
+
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 4rem;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--light);
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      position: relative;
+    }
+
+    h1::after {
+      content: 'IVY LI';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      color: transparent;
+      -webkit-text-stroke: 2px var(--primary);
+      z-index: -1;
+      transform: translate(4px, 4px);
+      opacity: 0.5;
+    }
+
+    .tagline {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      color: var(--secondary);
+      margin: 10px 0 30px 0;
+    }
+
+    .profile-frame {
+      position: relative;
+      display: inline-block;
+      margin: 20px 0 40px;
+    }
+
+    .profile-img {
+      height: 350px;
+      border-radius: 10px;
+      object-fit: cover;
+      position: relative;
+      z-index: 2;
+      filter: contrast(1.1);
+      box-shadow: 15px 15px 0 rgba(0, 184, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .profile-frame::before {
+      content: '';
+      position: absolute;
+      top: -10px; left: -10px; right: 10px; bottom: 10px;
+      border: 3px solid var(--primary);
+      z-index: 1;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .profile-frame:hover .profile-img {
+      transform: translate(-5px, -5px);
+      box-shadow: 20px 20px 0 rgba(0, 184, 255, 0.3);
+    }
+
+    .profile-frame:hover::before {
+      transform: translate(5px, 5px);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      text-transform: uppercase;
+      text-decoration: none;
+      font-size: 1.1rem;
+      padding: 15px 35px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .btn-primary {
+      color: var(--dark);
+      background-color: var(--primary);
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 0%; height: 100%;
+      background-color: #fff;
+      z-index: -1;
+      transition: width 0.3s;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.7);
+    }
+
+    .btn-primary:hover::before {
+      width: 100%;
+    }
+
+    .message {
+      margin-top: 30px;
+      font-size: 1.1rem;
+      color: #8892b0;
+    }
+
   </style>
-  <!-- <link href="https://fonts.googleapis.com/css?family=Courgette|Open+Sans&display=swap" rel="stylesheet"> -->
 </head>
-
 <body>
-  <section>
-    <div id="center-content">
-      <h2>Welcome to Ivy Li's Home!</h2>
 
-      <img style="height: 500px"
-        src='https://lh3.googleusercontent.com/WRvIlsgCxkcH1qVPAraiSDqniaUajyqHiI-yp6dO2ooy6igicZRTf2Aw_Br1qszwfcETCaanPiOMx2VLM9lDBs7w_2srIPnt4vpkd_GR5CPg127zYZ4gqJJU4v5_nfxsBBYESfJMr_I=w714-h952-no' />
-      <h2><em>Thank you for visiting my site. 谢谢!</em></h2>
-      <p style="margin-top: 20px;">
-        <a href="snake.html?name=Ivy&img=ivy-game-head.jpeg" style="color: #4CAF50; font-size: 1.2em; text-decoration: none; border: 1px solid #4CAF50; padding: 10px 20px; border-radius: 5px;">Play Snake Game 🐍</a>
-      </p>
-    </div>
+  <!-- Background grid effect -->
+  <div class="bg-grid"></div>
 
-    <div class="leaf">
-      <div> <img src="http://www.pngmart.com/files/1/Fall-Autumn-Leaves-Transparent-PNG.png" height="75px"
-          width="75px"></img></div>
-      <div><img src="http://www.pngmart.com/files/1/Autumn-Fall-Leaves-Pictures-Collage-PNG.png" height="75px"
-          width="75px"></img></div>
-      <div> <img src="http://www.pngmart.com/files/1/Autumn-Fall-Leaves-Clip-Art-PNG.png" height="75px"
-          width="75px"></img></div>
-      <div><img src="http://www.pngmart.com/files/1/Green-Leaves-PNG-File.png" height="75px" width="75px"></img></div>
-      <div>
-        <img src="http://www.pngmart.com/files/1/Transparent-Autumn-Leaves-Falling-PNG.png" height="75px"
-          width="75px"></img>
-        <!-- <img src="https://www.clipartmax.com/png/middle/33-339368_ivy-clipart-aka-ivy-leaf-clip-art.png" height="75px" width="75px"></img> -->
+  <!-- Animated sports elements -->
+  <div class="sport-icon" style="left: 10%; animation-duration: 18s; animation-delay: 0s;">⚽</div>
+  <div class="sport-icon" style="left: 30%; animation-duration: 22s; animation-delay: 5s;">🏀</div>
+  <div class="sport-icon" style="left: 60%; animation-duration: 15s; animation-delay: 2s;">🏃‍♀️</div>
+  <div class="sport-icon" style="left: 85%; animation-duration: 25s; animation-delay: 8s;">🎾</div>
+  <div class="sport-icon" style="left: 45%; animation-duration: 20s; animation-delay: 12s;">⚽</div>
+  <div class="sport-icon" style="left: 75%; animation-duration: 17s; animation-delay: 1s;">⚡</div>
+
+  <div class="container">
+    <div class="content-wrapper">
+      <h1>IVY LI</h1>
+      <div class="tagline">Welcome to the Action Zone</div>
+      
+      <div class="profile-frame">
+        <img class="profile-img" src="https://lh3.googleusercontent.com/WRvIlsgCxkcH1qVPAraiSDqniaUajyqHiI-yp6dO2ooy6igicZRTf2Aw_Br1qszwfcETCaanPiOMx2VLM9lDBs7w_2srIPnt4vpkd_GR5CPg127zYZ4gqJJU4v5_nfxsBBYESfJMr_I=w714-h952-no" alt="Ivy">
       </div>
-      <div>
-        <img src="http://www.pngmart.com/files/1/Realistic-Autumn-Fall-Leaves-PNG.png" height="75px" width="75px">
+
+      <div class="btn-group">
+        <a href="snake.html?name=Ivy&img=ivy-game-head.jpeg" class="btn btn-primary">PLAY SNAKE GAME 🐍</a>
       </div>
-      <div><img src="http://cdn.clipart-db.ru/rastr/autumn_leaves_025.png" height="75px" width="75px"></div>
 
+      <p class="message">Thanks for visiting my site. Game on! 谢谢!</p>
     </div>
+  </div>
 
-    <div class="leaf leaf1">
-      <div> <img src="http://www.pngmart.com/files/1/Fall-Autumn-Leaves-Transparent-PNG.png" height="75px"
-          width="75px"></img></div>
-      <div><img src="http://www.pngmart.com/files/1/Autumn-Fall-Leaves-Pictures-Collage-PNG.png" height="75px"
-          width="75px"></img></div>
-      <div> <img src="http://www.pngmart.com/files/1/Autumn-Fall-Leaves-Clip-Art-PNG.png" height="75px"
-          width="75px"></img></div>
-      <div><img src="http://www.pngmart.com/files/1/Green-Leaves-PNG-File.png" height="75px" width="75px"></img></div>
-      <div> <img src="http://www.pngmart.com/files/1/Transparent-Autumn-Leaves-Falling-PNG.png" height="75px"
-          width="75px"></img></div>
-      <div> <img src="http://www.pngmart.com/files/1/Realistic-Autumn-Fall-Leaves-PNG.png" height="75px" width="75px">
-      </div>
-      <div><img src="http://cdn.clipart-db.ru/rastr/autumn_leaves_025.png" height="75px" width="75px"></div>
-
-    </div>
-
-    <div class="leaf leaf2">
-      <div> <img src="http://www.pngmart.com/files/1/Fall-Autumn-Leaves-Transparent-PNG.png" height="75px"
-          width="75px"></img></div>
-      <div><img src="http://www.pngmart.com/files/1/Autumn-Fall-Leaves-Pictures-Collage-PNG.png" height="75px"
-          width="75px"></img></div>
-      <div> <img src="http://www.pngmart.com/files/1/Autumn-Fall-Leaves-Clip-Art-PNG.png" height="75px"
-          width="75px"></img></div>
-      <div><img src="http://www.pngmart.com/files/1/Green-Leaves-PNG-File.png" height="75px" width="75px"></img></div>
-
-      <div> <img src="http://www.pngmart.com/files/1/Transparent-Autumn-Leaves-Falling-PNG.png" height="75px"
-          width="75px"></img></div>
-      <div> <img src="http://www.pngmart.com/files/1/Realistic-Autumn-Fall-Leaves-PNG.png" height="75px" width="75px">
-      </div>
-      <div><img src="http://cdn.clipart-db.ru/rastr/autumn_leaves_025.png" height="75px" width="75px"></div>
-
-    </div>
-  </section>
+  <script>
+    // Add dynamic interactive hover effect tracking the mouse
+    document.addEventListener('mousemove', (e) => {
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      
+      const primary = document.documentElement.style;
+      primary.setProperty('--mouse-x', x);
+      primary.setProperty('--mouse-y', y);
+    });
+  </script>
 </body>
-
 </html>
-
