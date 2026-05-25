@@ -19,6 +19,7 @@ flowchart LR
     Laptop -- HDMI --> Splitter
     Laptop -- USB-A power --> Splitter
     Laptop -- USB-A --> Remote
+    Laptop -. optional 3.5 mm audio for YouTube playback .-> Mixer
 
     Splitter -- HDMI to VGA --> Projector
     Splitter -- HDMI --> Monitor
@@ -33,6 +34,7 @@ Simple explanation:
 - The **camera** and **sound from the Yamaha Mixing Console** go into the **ATEM Mini**.
 - The **ATEM Mini** sends camera and sound to the laptop through **USB-C**.
 - The **slide remote** connects directly to the laptop by **USB-A**.
+- Optional: the **laptop** can send audio back to the **Yamaha Mixing Console** when playing YouTube or other laptop audio through the church sound system.
 
 ## 1. Hardware Setup
 
@@ -44,6 +46,7 @@ Connect the laptop to the following devices:
 2. Connect the laptop to the **HDMI splitter** using HDMI.
 3. Connect the HDMI splitter power cable to the laptop using **USB-A**.
 4. Connect the **remote control** to the laptop using **USB-A**.
+5. Optional: connect the laptop audio output to the **Yamaha Mixing Console** when laptop audio needs to play through the church sound system, such as YouTube playback.
 
 ### HDMI Splitter Connections
 
@@ -133,17 +136,11 @@ Before the sermon starts:
 
 ### YouTube Upload
 
-The YouTube upload process is documented separately.
-
-Use this link:
-
-```text
-[Insert YouTube upload document link here]
-```
+Upload the sermon video recorded that Sunday. The YouTube upload process is [documented separately here](https://docs.google.com/document/d/1eAYi8r99xt1t5ldxOCHRCEqZuF5ntq3fRUUrI0reWDE/edit?usp=sharing).
 
 ## 7. Audio/Video Upload to AWS S3
 
-The AWS S3 upload process uses a script inside WSL.
+The AWS S3 upload process uses a script inside WSL. The script handles the audio and video compression automatically, so normally no manual compression steps are needed.
 
 The script will:
 
@@ -151,7 +148,7 @@ The script will:
 2. Extract and compress the audio using `ffmpeg`.
 3. Compress the video using `HandBrakeCLI`.
 4. Upload the audio and video files to AWS S3 using today's date.
-5. More details are available in the `s3-av` folder.
+5. More details about the exact compression settings and upload process are available in the `s3-av` folder.
 
 ### Steps to Run the Upload Script
 
@@ -173,7 +170,19 @@ This should navigate to the AV folder containing the upload script.
 
 Tip: Fish shell auto-completion should help, so you may not need to type the whole command.
 
-## 8. Final Checklist
+## 8. Troubleshooting
+
+### Camera Does Not Show in OBS
+
+If the camera was connected after OBS was already open, OBS may not detect it automatically.
+
+1. Confirm the camera is turned on.
+2. Confirm the camera HDMI cable is connected to the ATEM Mini.
+3. Confirm the ATEM Mini is connected to the laptop by USB-C.
+4. Close OBS completely.
+5. Reopen OBS and check the camera view again.
+
+## 9. Final Checklist
 
 Before the sermon:
 
