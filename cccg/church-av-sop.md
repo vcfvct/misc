@@ -19,7 +19,7 @@ flowchart LR
     Laptop -- HDMI --> Splitter
     Laptop -- USB-A power --> Splitter
     Laptop -- USB-A --> Remote
-    Laptop -. optional 3.5 mm audio for YouTube playback .-> Mixer
+    Laptop -.-> Mixer
 
     Splitter -- HDMI to VGA --> Projector
     Splitter -- HDMI --> Monitor
