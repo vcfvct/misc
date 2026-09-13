@@ -9,5 +9,5 @@ dependencies = [
     "mcp>=1.28.1",
     "openai>=1.107.2",
     "psutil>=7.1.0",
-    "python-dotenv>=1.1.1",
+    "python-dotenv>=1.2.2",
 ]
