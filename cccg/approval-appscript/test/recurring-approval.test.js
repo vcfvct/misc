@@ -7,7 +7,9 @@ const test = require('node:test');
 const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'recurring-approval.js'), 'utf8')
-    .replace("webAppUrl: '',", "webAppUrl: 'https://script.google.com/macros/s/TEST_DEPLOYMENT/exec',");
+    .replace("webAppUrl: '',", "webAppUrl: 'https://script.google.com/macros/s/TEST_DEPLOYMENT/exec',")
+    // The fixture always puts its response in row 2, independent of the owner's testRow setting.
+    .replace(/testRow:\s*\d+/, 'testRow: 2');
 const HEADERS = [
     'Timestamp', 'Email Address', 'Event Title', 'Applicant Name', 'Start Date', 'Start Time',
     'End Date', 'End Time', '参与人数', '申请使用区域', '活动介绍', 'Repeat Type',
@@ -43,6 +45,7 @@ function harness(overrides = {}) {
     const sent = [];
     const events = new Map();
     const logs = [];
+    const metaTags = [];
     const triggers = [];
     const controls = { calendarItems: [], mailFailTo: '', insertTimeoutOnce: false, calendarTimezone: 'America/New_York', now: Date.parse('2026-09-12T12:00:00Z') };
     const stats = { writes: 0, inserts: 0, lists: 0, releases: 0, triggers: 0 };
@@ -88,7 +91,9 @@ function harness(overrides = {}) {
             assert.equal(id, '1Smg_h5u_BUgmjWPueF_AIGZFM84zN2EREScEUzKnays'); return spreadsheet;
         }, flush: () => {} },
         LockService: { getScriptLock: () => ({ waitLock: () => {}, releaseLock: () => { stats.releases++; } }) },
-        HtmlService: { createHtmlOutput: (html) => html },
+        HtmlService: { createHtmlOutput: (html) => ({
+            addMetaTag: (name, content) => { metaTags.push({ name, content }); return html; }
+        }) },
         MailApp: { sendEmail: (message) => {
             if (message.to === controls.mailFailTo) throw new Error('Mail quota exceeded');
             sent.push(message);
@@ -144,7 +149,7 @@ function harness(overrides = {}) {
         return Object.fromEntries(new URL(link).searchParams);
     };
     const post = (decision, values = params()) => context.doPost({ parameter: { ...values, decision } });
-    return { context, data, sheet, row, change, plan, setup, queue, params, post, controls, stats, sent, events, properties, logs, spreadsheet };
+    return { context, data, sheet, row, change, plan, setup, queue, params, post, controls, stats, sent, events, properties, logs, metaTags, spreadsheet };
 }
 
 const dates = (plan) => Array.from(plan.occurrences, (occurrence) => occurrence.date);
@@ -593,4 +598,28 @@ test('review fails closed if pagination fails or calendar item limit is exceeded
     assert.match(page, /Unable to verify availability/);
     assert.match(page, /value="approve" disabled/);
     assert.doesNotMatch(page, /No room conflicts found/);
+});
+
+test('decision buttons have responsive accessible styles without changing form behavior', () => {
+    const h = harness(); h.setup(); h.queue();
+    const page = h.context.doGet({ parameter: h.params() });
+    assert.match(page, /<form class="booking-actions"[^>]*method="post"[^>]*target="_top"/);
+    assert.match(page, /class="booking-button booking-button--approve" type="submit" name="decision" value="approve">/);
+    assert.match(page, /class="booking-button booking-button--reject" type="submit" name="decision" value="reject">/);
+    assert.match(page, /min-height:\s*56px/);
+    assert.match(page, /font-size:\s*18px/);
+    assert.match(page, /\.booking-button:focus-visible/);
+    assert.match(page, /\.booking-button:disabled\s*\{[^}]*cursor:\s*not-allowed/s);
+    assert.match(page, /@media \(max-width: 600px\)/);
+    assert.deepEqual(h.metaTags.at(-1), { name: 'viewport', content: 'width=device-width, initial-scale=1' });
+    h.controls.calendarItems = [busy('2026-09-13T16:00:00Z', '2026-09-13T17:00:00Z')];
+    const conflictPage = h.context.doGet({ parameter: h.params() });
+    assert.match(conflictPage, /class="booking-button booking-button--approve"[^>]*value="approve" disabled/);
+    assert.equal(h.sent.length, 1);
+    assert.equal(h.stats.inserts, 0);
+    h.post('reject');
+    const finalPage = h.context.doGet({ parameter: h.params() });
+    assert.match(finalPage, /class="booking-button booking-button--secondary"/);
+    assert.match(finalPage, />Retry notification if needed<\/button>/);
+    assert.doesNotMatch(finalPage, /value="reject"/);
 });

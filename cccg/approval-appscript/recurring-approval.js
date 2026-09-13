@@ -613,8 +613,69 @@ function bookingEscape(value) {
     return String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
 }
 function bookingPage(body) {
-    return HtmlService.createHtmlOutput('<!doctype html><html><head><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width, initial-scale=1"></head>' +
-        '<body style="font-family:Arial,sans-serif;max-width:850px;margin:2rem auto;padding:1rem">' + body + '</body></html>');
+    const styles = `
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #1f2937;
+            background: #fff;
+            max-width: 850px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+        .booking-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #d1d5db;
+        }
+        .booking-button {
+            flex: 1 1 240px;
+            box-sizing: border-box;
+            min-width: 0;
+            min-height: 56px;
+            padding: 16px 24px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            font: inherit;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.4;
+            text-align: center;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            color: #fff;
+            cursor: pointer;
+        }
+        .booking-button--approve { background: #166534; }
+        .booking-button--approve:not(:disabled):hover { background: #14532d; }
+        .booking-button--reject { background: #b91c1c; }
+        .booking-button--reject:not(:disabled):hover { background: #991b1b; }
+        .booking-button--secondary { background: #1d4ed8; }
+        .booking-button--secondary:not(:disabled):hover { background: #1e40af; }
+        .booking-button:focus-visible {
+            outline: 3px solid #2563eb;
+            outline-offset: 4px;
+        }
+        .booking-button:disabled {
+            background: #e5e7eb;
+            color: #4b5563;
+            border-color: #d1d5db;
+            opacity: 1;
+            cursor: not-allowed;
+        }
+        @media (max-width: 600px) {
+            .booking-actions { flex-direction: column; }
+            .booking-button { flex: none; width: 100%; }
+        }
+    `;
+    return HtmlService.createHtmlOutput('<!doctype html><html><head><meta name="referrer" content="no-referrer"><style>' + styles + '</style></head>' +
+        '<body>' + body + '</body></html>')
+        // Apps Script ignores viewport meta tags embedded directly in HTML.
+        .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 function bookingErrorPage(error, reviewUrl) {
     console.error('Booking request failed: ' + error.message);
@@ -686,11 +747,11 @@ function doGet(e) {
             (!final && status === 'Pending' ? '<p><a target="_top" href="' + bookingEscape(bookingReviewUrl(authorized)) + '">Refresh availability</a></p>' : '') +
             '<pre style="white-space:pre-wrap">' + bookingEscape(bookingSummary(authorized.plan)) + '</pre>' +
             '<p>This private link authorizes a decision. Do not forward it. Opening this page changes nothing.</p>' +
-            '<form method="post" action="' + bookingEscape(requireBookingWebAppUrl()) + '" target="_top">' +
+            '<form class="booking-actions" aria-label="Booking decision actions" method="post" action="' + bookingEscape(requireBookingWebAppUrl()) + '" target="_top">' +
             '<input type="hidden" name="rid" value="' + bookingEscape(authorized.row['Booking Request ID']) + '">' +
             '<input type="hidden" name="token" value="' + bookingEscape(authorized.token) + '">' +
-            '<button type="submit" name="decision" value="approve"' + (availability.canApprove ? '' : ' disabled') + '>' + bookingEscape(availability.approveLabel) + '</button>' +
-            (final ? '' : ' <button type="submit" name="decision" value="reject"' + (availability.canReject ? '' : ' disabled') + '>Confirm REJECT request</button>') + '</form>');
+            '<button class="booking-button ' + (final || status === 'Creating' ? 'booking-button--secondary' : 'booking-button--approve') + '" type="submit" name="decision" value="approve"' + (availability.canApprove ? '' : ' disabled') + '>' + bookingEscape(availability.approveLabel) + '</button>' +
+            (final ? '' : '<button class="booking-button booking-button--reject" type="submit" name="decision" value="reject"' + (availability.canReject ? '' : ' disabled') + '>Confirm REJECT request</button>') + '</form>');
     } catch (error) { return bookingErrorPage(error); }
 }
 

@@ -222,6 +222,27 @@ columns, trigger changes, or form changes are needed for the review-page preview
 Existing unexpired approval links still work if the deployment URL and signing
 secret are unchanged.
 
+### Applying the larger action-button styling to production
+
+The review page now has bold 18px action labels, at least 56px-tall buttons, green
+approval/red rejection, gray disabled states, visible keyboard focus, and a
+full-width stacked layout on narrow screens. Recovery/notification actions use
+blue rather than looking like a new approval. No decision logic changed.
+
+If your production script was customized separately, do **not** overwrite it with
+this test-configured file. Transfer just:
+
+1. The updated `bookingPage(body)` function (CSS and the supported Apps Script
+   `.addMetaTag('viewport', ...)` call).
+2. The `<form>` and two `<button>` markup changes in `doGet(e)` that add
+   `booking-actions` / `booking-button` classes and choose the button color.
+
+Keep your production configuration, page heading, email wording, signing secret,
+and deployment URL intact. Save and publish a new version of the **existing
+production deployment**. No setup rerun, new trigger, or new approval email is
+needed. Open a review link on desktop and mobile, check keyboard focus, and verify
+that conflict-disabled approval remains disabled while Reject stays usable.
+
 ## 6. Enable new-response processing only when ready
 
 Run **`installBookingSubmitTrigger`** once under the intended owner account.
