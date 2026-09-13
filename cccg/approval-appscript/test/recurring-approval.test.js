@@ -106,6 +106,7 @@ function harness(overrides = {}) {
                 },
                 list: (_, options) => {
                     stats.lists++;
+                    if (controls.listFailure) throw new Error(controls.listFailure);
                     assert.equal(options.singleEvents, true);
                     if (controls.listPages) return controls.listPages[Number(options.pageToken || 0)];
                     return { items: controls.calendarItems };
@@ -459,4 +460,137 @@ test('monthly interval skips months and Repeat Until excludes subsequent occurre
     });
     assert.deepEqual(dates(plan), ['2026-09-13', '2026-11-13', '2027-01-13']);
     assert.match(plan.rrule, /INTERVAL=2;BYMONTHDAY=13/);
+});
+
+test('review shows availability across every calendar page without side effects', () => {
+    const h = harness(); h.setup(); h.queue();
+    h.controls.listPages = [{ items: [], nextPageToken: '1' }, { items: [] }];
+    const writes = h.stats.writes;
+    const page = h.context.doGet({ parameter: h.params() });
+    assert.match(page, /No room conflicts found/);
+    assert.match(page, /Checked all 11 requested occurrence/);
+    assert.match(page, /value="approve">/);
+    assert.match(page, /value="reject">/);
+    assert.match(page, /Refresh availability/);
+    assert.equal(h.stats.lists, 2);
+    assert.equal(h.stats.writes, writes);
+    assert.equal(h.sent.length, 1);
+    assert.equal(h.stats.inserts, 0);
+});
+
+test('review exposes a later conflict safely and manager can immediately reject and notify', () => {
+    const h = harness(); h.setup(); h.queue();
+    h.controls.listPages = [{ items: [], nextPageToken: '1' }, { items: [
+        busy('2026-11-22T17:00:00Z', '2026-11-22T18:00:00Z', { summary: '<img src=x onerror=alert(1)>' })
+    ] }];
+    const writes = h.stats.writes;
+    const page = h.context.doGet({ parameter: h.params() });
+    assert.match(page, /Room conflict found/);
+    assert.match(page, /First detected conflict on <strong>2026-11-22/);
+    assert.match(page, /2026-11-22 12:00:00/); // Existing event displayed in Eastern, not UTC.
+    assert.match(page, /&lt;img/);
+    assert.doesNotMatch(page, /<img/);
+    assert.match(page, /value="approve" disabled/);
+    assert.match(page, /value="reject">/);
+    assert.equal(h.row()['Booking Status'], 'Pending');
+    assert.equal(h.row()['Booking Notes'], '');
+    assert.equal(h.stats.writes, writes);
+    assert.equal(h.sent.length, 1);
+    assert.match(h.post('reject'), /Rejected/);
+    assert.equal(h.sent.length, 2);
+    assert.equal(h.sent[1].to, 'requester@example.com');
+    assert.equal(h.stats.inserts, 0);
+    assert.equal(h.stats.lists, 2); // Reject does not need another calendar scan.
+});
+
+test('refresh rechecks a resolved conflict without reserving or notifying', () => {
+    const h = harness(); h.setup(); h.queue();
+    h.controls.calendarItems = [busy('2026-09-13T16:00:00Z', '2026-09-13T17:00:00Z')];
+    const writes = h.stats.writes;
+    assert.match(h.context.doGet({ parameter: h.params() }), /value="approve" disabled/);
+    h.controls.calendarItems = [];
+    assert.match(h.context.doGet({ parameter: h.params() }), /value="approve">/);
+    assert.equal(h.stats.lists, 2);
+    assert.equal(h.stats.writes, writes);
+    assert.equal(h.stats.inserts, 0);
+    assert.equal(h.sent.length, 1);
+});
+
+test('calendar failure shows unknown availability, disables approval, but leaves rejection usable', () => {
+    const h = harness(); h.setup(); h.queue();
+    h.controls.listFailure = 'Calendar unavailable <script>alert(1)</script>';
+    const writes = h.stats.writes;
+    const page = h.context.doGet({ parameter: h.params() });
+    assert.match(page, /Unable to verify availability/);
+    assert.doesNotMatch(page, /No room conflicts found/);
+    assert.match(page, /&lt;script&gt;/);
+    assert.doesNotMatch(page, /<script>/);
+    assert.match(page, /value="approve" disabled/);
+    assert.match(page, /value="reject">/);
+    assert.equal(h.stats.writes, writes);
+    assert.equal(h.sent.length, 1);
+    assert.match(h.post('approve'), /Calendar unavailable/); // Cannot bypass UI via direct POST.
+    assert.equal(h.stats.inserts, 0);
+    assert.match(h.post('reject'), /Rejected/);
+});
+
+test('approval rechecks after a clear preview and links back to review if availability changed', () => {
+    const h = harness(); h.setup(); h.queue();
+    assert.match(h.context.doGet({ parameter: h.params() }), /No room conflicts found/);
+    h.controls.calendarItems = [busy('2026-11-22T17:00:00Z', '2026-11-22T18:00:00Z')];
+    const response = h.post('approve');
+    assert.match(response, /Room conflict on 2026-11-22/);
+    assert.match(response, /Return to review and refresh availability/);
+    assert.equal(h.row()['Booking Status'], 'Pending');
+    assert.equal(h.stats.inserts, 0);
+    assert.equal(h.stats.lists, 2);
+    assert.equal(h.sent.length, 1);
+});
+
+test('Creating and final review states skip scans to avoid conflicts with their own event', () => {
+    const h = harness(); h.setup(); h.queue();
+    h.controls.insertTimeoutOnce = true;
+    h.post('approve');
+    const lists = h.stats.lists;
+    h.controls.listFailure = 'Must not scan the calendar in a recovery/final review';
+    let page = h.context.doGet({ parameter: h.params() });
+    assert.match(page, /Recover previous approval attempt/);
+    assert.match(page, /value="approve">/);
+    assert.match(page, /value="reject" disabled/);
+    assert.equal(h.stats.lists, lists);
+    h.post('approve'); // Recovers the existing event by ID; does not scan or reinsert.
+    page = h.context.doGet({ parameter: h.params() });
+    assert.match(page, /Retry notification if needed/);
+    assert.doesNotMatch(page, /Room conflict found/);
+    assert.doesNotMatch(page, /value="reject"/);
+    assert.equal(h.stats.lists, lists);
+    assert.equal(h.stats.inserts, 1);
+    const rejected = harness(); rejected.setup(); rejected.queue(); rejected.post('reject');
+    assert.match(rejected.context.doGet({ parameter: rejected.params() }), /decision is final/);
+    assert.equal(rejected.stats.lists, 0);
+});
+
+test('invalid or expired review links cannot trigger calendar scans', () => {
+    const h = harness(); h.setup(); h.queue();
+    const params = h.params();
+    assert.match(h.context.doGet({ parameter: { ...params, token: '0'.repeat(64) } }), /Invalid or expired/);
+    h.controls.now += 15 * 86400000;
+    assert.match(h.context.doGet({ parameter: params }), /Invalid or expired/);
+    assert.equal(h.stats.lists, 0);
+});
+
+test('review fails closed if pagination fails or calendar item limit is exceeded', () => {
+    const h = harness(); h.setup(); h.queue();
+    // First page succeeds, but the next page is unavailable. Never claim the full series is clear.
+    h.controls.listPages = [{ items: [], nextPageToken: '1' }];
+    let page = h.context.doGet({ parameter: h.params() });
+    assert.match(page, /Unable to verify availability/);
+    assert.match(page, /value="approve" disabled/);
+    h.controls.listPages = null;
+    h.controls.calendarItems = Array.from({ length: 10001 }, () => ({ transparency: 'transparent' }));
+    page = h.context.doGet({ parameter: h.params() });
+    assert.match(page, /Too many calendar items/);
+    assert.match(page, /Unable to verify availability/);
+    assert.match(page, /value="approve" disabled/);
+    assert.doesNotMatch(page, /No room conflicts found/);
 });

@@ -127,8 +127,10 @@ that policy; select a permitted access mode and test it with the approver.
   manager identity is required, add a proper sign-in/allowlist design before
   production. `Session.getActiveUser().getEmail()` is not reliably available in
   execute-as-owner web apps and is not used as a false identity check here.
-- GET only renders a review page. A separate **POST confirmation** is required to
-  approve or reject. Ordinary link previews cannot approve by fetching the URL.
+- GET renders a review page and performs a **read-only live calendar check** for
+  pending requests. It never changes sheet status, sends email or creates events.
+  A separate **POST confirmation** is required to approve or reject. Ordinary link
+  previews cannot approve by fetching the URL (but can consume calendar-read quota).
 - The signature binds the request ID, snapshot digest, nonce and expiry. Changed
   details invalidate the old approval; resending rotates the nonce and link.
 - Links use a stable request UUID, not a guessable/mutable sheet row number.
@@ -146,8 +148,18 @@ when you confirm a decision.
 1. Set `testRow` to the row to process (default `2`). Save.
 2. Run **`sendTestBookingApproval`** from the editor.
 3. Check `cccgadm@gmail.com` for `[TEST] Approval required: ...`.
-4. Open its private review link. Confirm the complete schedule, rooms and applicant.
+4. Open its private review link. Confirm the complete schedule, rooms and applicant,
+   and read the availability panel:
+   - **No room conflicts found:** all requested occurrences were checked; approval
+     and rejection are available.
+   - **Room conflict found:** shows the first detected conflict, the existing event
+     title, and requested/existing times in Eastern Time. Approval is disabled;
+     you can immediately reject and notify the requester.
+   - **Unable to verify availability:** a calendar/API check failed, not a confirmed
+     conflict. Approval is disabled; refresh to retry. Rejection remains available.
 5. Click **Confirm APPROVE entire schedule** or **Confirm REJECT request**.
+   If resolving a conflict instead of rejecting, click **Refresh availability**
+   afterward. Approval always checks again on POST, even after a clear preview.
 6. Check the sheet's `Booking Status`, notes and event ID, the test calendar, and
    the submitter's inbox.
 
@@ -174,7 +186,19 @@ Use separate dummy requests for these cases:
 - **Reject:** no event created, submitter gets the rejection message.
 - **Duplicate confirmation:** no second series or reversed decision.
 - **Later-occurrence conflict:** put a busy test event on a later requested date;
-  approval should stop before creating any part of the series.
+  opening the review link should show the conflict before any decision. Verify
+  approval is disabled, rejection is available, and viewing alone sends no mail
+  or changes to the sheet. Reject and confirm the submitter receives an email.
+- **Resolved conflict:** remove only the test conflict and refresh the review page;
+  approval should become available without resending the approval link.
+- **Changed availability:** open a clear review page, then create a conflicting
+  test event before clicking Approve. The POST must still stop without creating
+  a series and provide a link back to review, where the manager can reject.
+- **Calendar failure:** if permissions/API access fail, the page must show unknown
+  availability, not "no conflicts". Rejection should still work.
+- **Recovery/final states:** a Creating request offers recovery, not rejection;
+  approved/rejected reviews do not scan the calendar or report their own event
+  as a conflict.
 - **Invalid schedule:** mismatched first weekday, end before start, missing/unbounded
   Repeat Until, overlapping occurrences, or daylight-saving gap/ambiguous time.
   Queueing should mark `Needs correction`, with an explanation in `Booking Notes`.
@@ -183,9 +207,20 @@ Use separate dummy requests for these cases:
 - **Public responder submission:** confirm date/time display formats match the
   spreadsheet settings and branch fields arrive under the expected headers.
 
-A conflict leaves the request **Pending** with notes; it does not create a partial
-series or automatically reject it. Remove only the test conflict and retry the
-same approval, or reject the request. The manager's email is not a reservation.
+A conflict preview leaves the request **Pending** and does not write notes, send
+email, create a partial series, or automatically reject it. An actual approval
+POST blocked by a conflict still records the error in `Booking Notes`. The
+requester is notified only when the manager explicitly rejects or successfully
+approves the request. The manager's email and review preview are not reservations.
+
+### Updating an existing test deployment
+
+Replace the Apps Script code with the updated `recurring-approval.js`, preserving
+YOUR configured `webAppUrl` and other local settings. Then use **Deploy → Manage
+deployments → Edit → New version → Deploy** on the same deployment. No new sheet
+columns, trigger changes, or form changes are needed for the review-page preview.
+Existing unexpired approval links still work if the deployment URL and signing
+secret are unchanged.
 
 ## 6. Enable new-response processing only when ready
 
@@ -228,9 +263,13 @@ Implemented in this test script, not in the native form UI:
   occurrences into separate requests rather than risk a calendar duration mismatch.
 - Google Calendar API RRULEs create true recurring series, including ordinal
   monthly weekdays. Start/end explicitly carry the named timezone.
-- Conflict checking expands existing calendar series, follows pagination, and
-  checks every proposed occurrence. More than 10,000 returned calendar items fails
-  closed; shorten the request period rather than ignore unchecked conflicts.
+- The review preview and approval POST share the same read-only conflict scanner.
+  It expands existing calendar series and follows pagination; a clear result means
+  every proposed occurrence was checked. It stops at the first detected conflict
+  (the displayed conflict is not an exhaustive list). More than 10,000 returned
+  calendar items fails closed; shorten the request period rather than ignore
+  unchecked conflicts. POST rechecks under the script lock immediately before
+  inserting; the preview is advisory and does not reserve rooms.
 - Busy events created by this workflow have room metadata. They only conflict
   when at least one requested room overlaps. **Untagged or malformed busy events
   conservatively block all rooms.** Adding a room name only in a manually created

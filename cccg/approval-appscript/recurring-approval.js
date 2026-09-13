@@ -6,8 +6,8 @@ const APPROVAL_CONFIG = Object.freeze({
     calendarId: '07dc83abac2029718c493d8277c04f8d926406c26450bff86582ad86d3abb7c1@group.calendar.google.com',
     managerEmails: ['cccgadm@gmail.com'],
     timezone: 'America/New_York',
-    webAppUrl: '', // Paste the deployed /exec URL, then update the deployment version.
-    testRow: 2,
+    webAppUrl: 'https://script.google.com/macros/s/AKfycbxtiMnf8ix0onWM3TuSeOtdhjnKIvCI6BHH4wFIT_zDEN56muLF7zg54JbyaOYibA/exec', // Paste the deployed /exec URL, then update the deployment version.
+    testRow: 3,
     linkLifetimeDays: 14,
     maxOccurrences: 400,
     maxCalendarItems: 10000,
@@ -481,7 +481,9 @@ function calendarRoomsOverlap(event, requestedRooms) {
     } catch (_) { return true; }
 }
 
-function checkBookingConflicts(plan) {
+// Read-only scan shared by the review page and the authoritative approval check.
+// Return the first detected conflict; technical failures still throw (never "available").
+function findBookingConflict(plan) {
     if (Calendar.Calendars.get(APPROVAL_CONFIG.calendarId).timeZone !== APPROVAL_CONFIG.timezone) {
         throw new Error('Calendar timezone changed. Restore ' + APPROVAL_CONFIG.timezone + ' before checking room conflicts.');
     }
@@ -502,10 +504,23 @@ function checkBookingConflicts(plan) {
             if (event.status === 'cancelled' || event.transparency === 'transparent' || !calendarRoomsOverlap(event, plan.request.rooms)) continue;
             const range = calendarEventRange(event);
             const conflict = plan.occurrences.find((occurrence) => occurrence.start < range.end && range.start < occurrence.end);
-            if (conflict) throw new Error('Room conflict on ' + conflict.date + ' with calendar event: ' + (event.summary || '(untitled)') + '. Nothing was created.');
+            if (conflict) return {
+                date: conflict.date,
+                requestedStart: conflict.start,
+                requestedEnd: conflict.end,
+                existingStart: range.start,
+                existingEnd: range.end,
+                eventTitle: event.summary || '(untitled)'
+            };
         }
         pageToken = page.nextPageToken;
     } while (pageToken);
+    return null;
+}
+
+function checkBookingConflicts(plan) {
+    const conflict = findBookingConflict(plan);
+    if (conflict) throw new Error('Room conflict on ' + conflict.date + ' with calendar event: ' + conflict.eventTitle + '. Nothing was created.');
 }
 
 function bookingEventResource(plan, requestId) {
@@ -518,12 +533,14 @@ function bookingEventResource(plan, requestId) {
         start: { dateTime: new Date(first.start).toISOString(), timeZone: APPROVAL_CONFIG.timezone },
         end: { dateTime: new Date(first.end).toISOString(), timeZone: APPROVAL_CONFIG.timezone },
         transparency: 'opaque',
-        extendedProperties: { private: {
-            cccgBookingSource: APPROVAL_CONFIG.spreadsheetId,
-            cccgBookingRequestId: requestId,
-            cccgBookingSnapshotHash: bookingHash(JSON.stringify(plan.request)),
-            cccgBookingRooms: JSON.stringify(plan.request.rooms)
-        } }
+        extendedProperties: {
+            private: {
+                cccgBookingSource: APPROVAL_CONFIG.spreadsheetId,
+                cccgBookingRequestId: requestId,
+                cccgBookingSnapshotHash: bookingHash(JSON.stringify(plan.request)),
+                cccgBookingRooms: JSON.stringify(plan.request.rooms)
+            }
+        }
     };
     if (plan.rrule) event.recurrence = [plan.rrule];
     return event;
@@ -599,9 +616,63 @@ function bookingPage(body) {
     return HtmlService.createHtmlOutput('<!doctype html><html><head><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width, initial-scale=1"></head>' +
         '<body style="font-family:Arial,sans-serif;max-width:850px;margin:2rem auto;padding:1rem">' + body + '</body></html>');
 }
-function bookingErrorPage(error) {
+function bookingErrorPage(error, reviewUrl) {
     console.error('Booking request failed: ' + error.message);
-    return bookingPage('<h2>Request not processed</h2><p>' + bookingEscape(error.message) + '</p>');
+    return bookingPage('<h2>Request not processed</h2><p>' + bookingEscape(error.message) + '</p>' +
+        (reviewUrl ? '<p><a target="_top" href="' + bookingEscape(reviewUrl) + '">Return to review and refresh availability</a></p>' : ''));
+}
+
+function bookingReviewUrl(authorized) {
+    return requireBookingWebAppUrl() + '?rid=' + encodeURIComponent(authorized.row['Booking Request ID']) +
+        '&token=' + encodeURIComponent(authorized.token);
+}
+
+/** Opening a review must not write status, send mail, or reserve any rooms. */
+function bookingReviewAvailability(authorized) {
+    const status = authorized.row['Booking Status'];
+    if (['Approved', 'Rejected'].includes(status)) {
+        // Do not report this request's own approved series as a new room conflict.
+        return {
+            html: '<p>The decision is final. The button only retries a notification if needed.</p>',
+            canApprove: true, canReject: false, approveLabel: 'Retry notification if needed'
+        };
+    }
+    if (status === 'Creating') {
+        // An uncertain insert may already exist. Recovery GETs its deterministic ID first.
+        return {
+            html: '<h3>Calendar creation needs recovery</h3><p>The event may already exist. Recover the previous approval attempt before making any other decision.</p>',
+            canApprove: true, canReject: false, approveLabel: 'Recover previous approval attempt'
+        };
+    }
+    const result = { canApprove: false, canReject: status === 'Pending', approveLabel: 'Confirm APPROVE entire schedule' };
+    if (status !== 'Pending') {
+        result.html = '<h3>Owner review required</h3><p>This request is not pending approval. Ask the owner to review and resend it.</p>';
+        return result;
+    }
+    if (authorized.plan.occurrences[0].start <= Date.now()) {
+        result.html = '<h3>Cannot approve a past start</h3><p>The first occurrence is in the past. Reject this request or ask for a new request with future dates.</p>';
+        return result;
+    }
+    try {
+        const conflict = findBookingConflict(authorized.plan);
+        if (conflict) {
+            const localTime = (instant) => bookingEscape(Utilities.formatDate(new Date(instant), APPROVAL_CONFIG.timezone, 'yyyy-MM-dd HH:mm:ss'));
+            result.html = '<h3>Room conflict found</h3><p>First detected conflict on <strong>' + bookingEscape(conflict.date) + '</strong>.</p>' +
+                '<p>Requested occurrence: ' + localTime(conflict.requestedStart) + ' → ' + localTime(conflict.requestedEnd) + '</p>' +
+                '<p>Conflicting calendar event: <strong>' + bookingEscape(conflict.eventTitle) + '</strong><br>' +
+                localTime(conflict.existingStart) + ' → ' + localTime(conflict.existingEnd) + ' (' + bookingEscape(APPROVAL_CONFIG.timezone) + ')</p>' +
+                '<p>Approval is disabled while this conflict exists. You can reject the entire request now, which emails the requester, or resolve the conflict and refresh availability. No part of this request has been reserved.</p>';
+        } else {
+            result.canApprove = true;
+            result.html = '<h3>No room conflicts found</h3><p>Checked all ' + authorized.plan.occurrences.length +
+                ' requested occurrence(s). Availability will be checked again when you confirm approval; this preview does not reserve rooms.</p>';
+        }
+    } catch (error) {
+        console.error('Review availability check failed: ' + error.message);
+        result.html = '<h3>Unable to verify availability</h3><p>' + bookingEscape(error.message) +
+            '</p><p>This is a check failure, not a confirmed room conflict. Approval is disabled until availability can be verified. Refresh to retry; rejection remains available.</p>';
+    }
+    return result;
 }
 
 function doGet(e) {
@@ -609,29 +680,33 @@ function doGet(e) {
         const authorized = authorizedBooking(e);
         const status = authorized.row['Booking Status'];
         const final = ['Approved', 'Rejected'].includes(status);
+        const availability = bookingReviewAvailability(authorized);
         return bookingPage('<h2>[TEST] Review the entire booking</h2><p>Status: ' + bookingEscape(status) + '</p>' +
+            '<section role="status" style="border:1px solid #999;padding:1rem;margin:1rem 0">' + availability.html + '</section>' +
+            (!final && status === 'Pending' ? '<p><a target="_top" href="' + bookingEscape(bookingReviewUrl(authorized)) + '">Refresh availability</a></p>' : '') +
             '<pre style="white-space:pre-wrap">' + bookingEscape(bookingSummary(authorized.plan)) + '</pre>' +
             '<p>This private link authorizes a decision. Do not forward it. Opening this page changes nothing.</p>' +
-            (final ? '<p>The decision is final. The button only retries a notification if needed.</p>' : '<p>Approval checks the requested rooms for every occurrence before creating the series.</p>') +
             '<form method="post" action="' + bookingEscape(requireBookingWebAppUrl()) + '" target="_top">' +
             '<input type="hidden" name="rid" value="' + bookingEscape(authorized.row['Booking Request ID']) + '">' +
             '<input type="hidden" name="token" value="' + bookingEscape(authorized.token) + '">' +
-            '<button type="submit" name="decision" value="approve">' + (final ? 'Retry notification if needed' : 'Confirm APPROVE entire schedule') + '</button>' +
-            (final ? '' : ' <button type="submit" name="decision" value="reject">Confirm REJECT request</button>') + '</form>');
+            '<button type="submit" name="decision" value="approve"' + (availability.canApprove ? '' : ' disabled') + '>' + bookingEscape(availability.approveLabel) + '</button>' +
+            (final ? '' : ' <button type="submit" name="decision" value="reject"' + (availability.canReject ? '' : ' disabled') + '>Confirm REJECT request</button>') + '</form>');
     } catch (error) { return bookingErrorPage(error); }
 }
 
 function doPost(e) {
+    let reviewUrl;
     try {
         const action = e && e.parameter && e.parameter.decision;
         if (!['approve', 'reject'].includes(action)) throw new Error('Invalid decision.');
         const result = withBookingLock(() => {
             const authorized = authorizedBooking(e);
+            reviewUrl = bookingReviewUrl(authorized);
             try { return decideBooking(authorized, action); } catch (error) {
                 writeBookingAdmin(authorized.store, authorized.rowNumber, { 'Booking Notes': error.message });
                 throw error;
             }
         });
         return bookingPage('<h2>' + bookingEscape(result) + '</h2>');
-    } catch (error) { return bookingErrorPage(error); }
+    } catch (error) { return bookingErrorPage(error, reviewUrl); }
 }
