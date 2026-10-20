@@ -1,0 +1,11 @@
+# Copy to .sermon.local.yaml. Title and speaker are shared across sermon tools.
+siteId: d3e23eb0-5924-40a9-b990-daa4f82cd0ee
+speaker: '許健文長老'
+# Plain sermon title, without a date suffix. --title overrides this value.
+title: '本周证道标题'
+# Default existing Wix Blog author if no member matches the speaker.
+authorId: ''
+# Leave blank to select the category labelled 主日信息 automatically.
+categoryId: ''
+# Prefer keeping the Wix API key in the WIX_API_KEY environment variable.
+# wixApiKey: 'your-secret-key'
