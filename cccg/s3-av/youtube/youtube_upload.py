@@ -2,6 +2,7 @@
 """Upload a sermon MP4 to YouTube, using the shared root uv project and config."""
 
 import argparse
+from contextlib import redirect_stdout
 import json
 import os
 from pathlib import Path
@@ -68,12 +69,14 @@ def authenticate(args):
                     or installed.get('token_uri') != 'https://oauth2.googleapis.com/token'):
                 raise SermonError('Expected an unmodified Google Desktop app OAuth credentials JSON.')
             flow = InstalledAppFlow.from_client_config(config, SCOPES)
-            credentials = flow.run_local_server(
-                host='localhost', bind_addr='127.0.0.1', port=0,
-                open_browser=not args.no_browser, timeout_seconds=300,
-                access_type='offline', prompt='consent',
-                authorization_prompt_message='Authorize the intended YouTube channel in your browser:\n{url}',
-            )
+            # Keep sign-in visible when the upload's JSON stdout is captured.
+            with redirect_stdout(sys.stderr):
+                credentials = flow.run_local_server(
+                    host='localhost', bind_addr='127.0.0.1', port=0,
+                    open_browser=not args.no_browser, timeout_seconds=300,
+                    access_type='offline', prompt='consent',
+                    authorization_prompt_message='Authorize the intended YouTube channel in your browser:\n{url}',
+                )
         if not credentials.refresh_token:
             raise SermonError('Google did not return a refresh token. Run --auth-only --reauthorize.')
         save_private_json(args.token, json.loads(credentials.to_json()))

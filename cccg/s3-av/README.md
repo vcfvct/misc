@@ -4,6 +4,9 @@
 3. Configure YouTube OAuth and Wix access using the guides below, set the sermon
    `title` and `speaker` in `.sermon.local.yaml`, and run `uv sync --locked`.
 4. Run `./start.sh` in WSL. It runs these steps in order and stops on any error:
+  * check YouTube authorization before processing: reuse/refresh the saved token,
+    or prompt for sign-in if no token exists. If refresh fails, stop immediately;
+    run `./youtube/youtube-upload.sh --auth-only --reauthorize` and then restart.
   * compress the video from `raw.mp4` and save it with today's date(from example `20221228.mp4`) to the same directory.
   * compress the audio from `raw.mp4` and save it with today's date(from example `20221228.mp3`) to the same directory.
   * upload both the compressed audio and video to our S3 bucket's video and audio directories.

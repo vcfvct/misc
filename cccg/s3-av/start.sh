@@ -17,6 +17,9 @@ fi
 echo "using date: ${d}"
 echo "using sermon directory: ${sermon_dir}"
 
+echo checking YouTube authorization...
+"${script_dir}/youtube/youtube-upload.sh" --auth-only
+
 echo processing video...
 "${script_dir}/video-compress.sh" -d "${d}" -f "${sermon_dir}"
 
@@ -27,9 +30,13 @@ echo upload to S3...
 "${script_dir}/s3-upload.sh" -d "${d}" -f "${sermon_dir}"
 
 echo uploading raw.mp4 to YouTube...
+youtube_status=0
 youtube_result="$("${script_dir}/youtube/youtube-upload.sh" \
-    --date "${d}" --file "${sermon_dir}/raw.mp4" --upload)"
-echo "${youtube_result}"
+    --date "${d}" --file "${sermon_dir}/raw.mp4" --upload)" || youtube_status=$?
+printf '%s\n' "${youtube_result}"
+if [[ "${youtube_status}" -ne 0 ]]; then
+    exit "${youtube_status}"
+fi
 youtube_url="$(uv run --locked --project "${script_dir}" python -c \
     'import json, sys; print(json.loads(sys.argv[1])["url"])' "${youtube_result}")"
 

@@ -36,10 +36,14 @@ from pathlib import Path
 name = Path(sys.argv[0]).name
 with open(os.environ['CALL_LOG'], 'a') as stream:
     stream.write(json.dumps([name] + sys.argv[1:]) + '\\n')
+if name == 'youtube-upload.sh' and '--auth-only' in sys.argv:
+    sys.exit(7 if os.environ.get('FAIL_AUTH') else 0)
 if os.environ.get('FAIL_STAGE') == name:
     sys.exit(7)
 if name == 'youtube-upload.sh':
     print(json.dumps({'url': 'https://www.youtube.com/watch?v=test_video'}))
+    if os.environ.get('FAIL_RECEIPT'):
+        sys.exit(7)
 '''
         for name in ('HandBrakeCLI', 'ffmpeg', 'aws'):
             self.executable(self.bin / name, mock)
@@ -71,15 +75,16 @@ os.execv(sys.executable, [sys.executable] + sys.argv[index + 1:])
         self.assertEqual(result.returncode, 0, result.stderr)
         calls = self.calls()
         self.assertEqual([call[0] for call in calls],
-                         ['HandBrakeCLI', 'ffmpeg', 'aws', 'aws',
+                         ['youtube-upload.sh', 'HandBrakeCLI', 'ffmpeg', 'aws', 'aws',
                           'youtube-upload.sh', 'wix-post.sh'])
-        self.assertIn(str(self.media / 'raw.mp4'), calls[0])
-        self.assertIn(str(self.media / '20261018.mp4'), calls[1])
+        self.assertEqual(calls[0][1:], ['--auth-only'])
+        self.assertIn(str(self.media / 'raw.mp4'), calls[1])
         self.assertIn(str(self.media / '20261018.mp4'), calls[2])
-        self.assertIn(str(self.media / '20261018.mp3'), calls[3])
-        self.assertEqual(calls[4][1:], ['--date', '20261018', '--file',
+        self.assertIn(str(self.media / '20261018.mp4'), calls[3])
+        self.assertIn(str(self.media / '20261018.mp3'), calls[4])
+        self.assertEqual(calls[5][1:], ['--date', '20261018', '--file',
                                       str(self.media / 'raw.mp4'), '--upload'])
-        self.assertEqual(calls[5][1:], ['--date', '20261018', '--youtube',
+        self.assertEqual(calls[6][1:], ['--date', '20261018', '--youtube',
                                       'https://www.youtube.com/watch?v=test_video'])
 
     def test_failure_stops_later_steps(self):
@@ -91,6 +96,19 @@ os.execv(sys.executable, [sys.executable] + sys.argv[index + 1:])
                 result = self.run_start()
                 self.assertNotEqual(result.returncode, 0)
                 self.assertEqual(self.calls()[-1][0], stage)
+
+    def test_auth_failure_stops_before_processing(self):
+        self.env['FAIL_AUTH'] = '1'
+        result = self.run_start()
+        self.assertEqual(result.returncode, 7)
+        self.assertEqual(self.calls(), [['youtube-upload.sh', '--auth-only']])
+
+    def test_receipt_failure_prints_recovery_url_and_skips_wix(self):
+        self.env['FAIL_RECEIPT'] = '1'
+        result = self.run_start()
+        self.assertEqual(result.returncode, 7)
+        self.assertIn('https://www.youtube.com/watch?v=test_video', result.stdout)
+        self.assertNotIn('wix-post.sh', [call[0] for call in self.calls()])
 
     def test_missing_raw_stops_before_processing(self):
         (self.media / 'raw.mp4').unlink()
