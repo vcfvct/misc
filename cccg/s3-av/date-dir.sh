@@ -9,6 +9,10 @@ do
 done
 
 # use today's date if no argument is provided
-[ -z "$d" ] && d=`date +%Y%m%d`
+if [[ -z "${d:-}" ]]; then
+    d=$(date +%Y%m%d)
+fi
 # use Windows Documents sermons directory if no argument is provided
-[ -z "$sermon_dir" ] && sermon_dir=$(wslpath "$(wslvar USERPROFILE)")/Documents/sermons
+if [[ -z "${sermon_dir:-}" ]]; then
+    sermon_dir="$(wslpath "$(wslvar USERPROFILE)")/Documents/sermons"
+fi

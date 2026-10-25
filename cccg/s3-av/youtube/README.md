@@ -4,7 +4,9 @@ Run the examples below from the project root (`s3-av/`). This standalone uploade
 uses the existing root `pyproject.toml`, `uv.lock`, and `.venv/`; no separate venv
 or pip installation is needed. The wrapper finds the project regardless of the
 working directory. Relative file/config overrides are relative to your shell's
-working directory. The S3/compression scripts and Wix workflow are unchanged.
+working directory. The root `start.sh` now runs compression and S3 uploads, uploads
+its original `raw.mp4` through this tool, and passes the URL to the Wix draft tool.
+The standalone examples below can also upload a compressed MP4.
 
 ## Credentials and first authorization
 
@@ -126,7 +128,8 @@ YouTube/account/project policies may prevent the requested visibility; check
 Studio rather than assuming `--privacy public` guarantees a public video.
 
 Pass the resulting watch URL into the existing Wix script's `--youtube` option.
-Private videos will not play for ordinary site visitors; make the video unlisted
+The root `start.sh` passes this URL to Wix automatically; standalone uploads still
+require passing it yourself. Private videos will not play for ordinary site visitors; make the video unlisted
 or public when ready **before publishing the Wix post**. The tool does not
 publish to Wix, add playlists/thumbnails, schedule publication, or change an
 existing YouTube video's visibility.
