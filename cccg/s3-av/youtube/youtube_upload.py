@@ -96,7 +96,7 @@ def build_video(args, config):
     if not args.file or not args.file.is_file() or args.file.stat().st_size == 0:
         raise SermonError('--file must be an existing, non-empty local MP4 file.')
     if args.file.suffix.lower() != '.mp4':
-        raise SermonError('--file must have an .mp4 extension; use the existing compressed sermon video.')
+        raise SermonError('--file must have an .mp4 extension; use the raw or compressed sermon video.')
     video_title = '{}--{} | {}'.format(title.strip(), args.date.strftime('%Y%m%d'), speaker.strip())
     if len(video_title) > 100 or any(char in video_title for char in '<>\r\n'):
         raise SermonError('YouTube title including date/speaker must be at most 100 characters, '
@@ -166,7 +166,7 @@ def parser():
     mode.add_argument('--upload', action='store_true', help='Actually upload the selected file')
     result.add_argument('--config', type=Path, default=CONFIG_PATH)
     result.add_argument('--date', type=sermon_date, help='Sermon date in YYYYMMDD format')
-    result.add_argument('--file', type=Path, help='Local compressed sermon MP4')
+    result.add_argument('--file', type=Path, help='Local sermon MP4 (raw or compressed)')
     result.add_argument('--title', help='Override shared YAML title')
     result.add_argument('--speaker', help='Override shared YAML speaker')
     result.add_argument('--scripture', help='Optional Scripture reference')
