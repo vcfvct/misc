@@ -1,0 +1,10 @@
+.sermon.local.yaml
+.sermon.local.yaml.*
+.sermon.local.yml
+.sermon.local.yml.*
+.venv/
+__pycache__/
+# YouTube OAuth credentials, tokens, and local upload receipts.
+youtube/client_secret*.json*
+youtube/token*.json*
+youtube/.uploads/

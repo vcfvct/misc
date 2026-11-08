@@ -1,0 +1,14 @@
+[project]
+name = 'cccg-sermon-post'
+version = '0.1.0'
+description = 'Upload sermon videos to YouTube and create Sunday sermon drafts in Wix Blog'
+requires-python = '>=3.8'
+dependencies = [
+    'google-api-python-client>=2.150,<3',
+    'google-auth-httplib2>=0.2,<1',
+    'google-auth-oauthlib>=1.2,<2',
+    'PyYAML>=6.0.2,<7',
+]
+
+[tool.uv]
+package = false

@@ -1,0 +1,13 @@
+{
+	"servers":{
+		"hostInfoMcp": {
+			"command": "uv",
+			"args": [
+				"--directory",
+				".",
+				"run",
+				"main.py"
+			]
+		}
+	}
+}
