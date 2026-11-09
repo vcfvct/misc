@@ -1,19 +1,8 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-# Copy vidio file
-python3 copy_new_video.py
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "${script_dir}/date-dir.sh"
 
-# set d and sermon_dir
-source ./date-dir.sh
-
-echo using date: $d
-echo using sermon directory: $sermon_dir
-
-echo processing video...
-./video-compress.sh -d ${d} -f ${sermon_dir}
-
-echo processing audio...
-./audio-compress.sh -d ${d} -f ${sermon_dir}
-
-echo upload to S3...
-./s3-upload.sh -d ${d} -f ${sermon_dir}
+python3 "${script_dir}/copy_new_video.py" --target-dir "${sermon_dir}"
+exec "${script_dir}/start.sh" -d "${d}" -f "${sermon_dir}"

@@ -3,11 +3,13 @@
 import json
 import os
 from pathlib import Path
+import runpy
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parent
@@ -23,7 +25,7 @@ class StartTests(unittest.TestCase):
         self.media = self.directory / 'sermon files'
         self.media.mkdir()
         (self.media / 'raw.mp4').write_bytes(b'original video')
-        for name in ('start.sh', 'date-dir.sh', 'video-compress.sh',
+        for name in ('copy_and_start.sh', 'start.sh', 'date-dir.sh', 'video-compress.sh',
                      'audio-compress.sh', 's3-upload.sh'):
             shutil.copy2(ROOT / name, self.project / name)
         self.bin = self.directory / 'bin'
@@ -45,7 +47,7 @@ if name == 'youtube-upload.sh':
     if os.environ.get('FAIL_RECEIPT'):
         sys.exit(7)
 '''
-        for name in ('HandBrakeCLI', 'ffmpeg', 'aws'):
+        for name in ('python3', 'HandBrakeCLI', 'ffmpeg', 'aws'):
             self.executable(self.bin / name, mock)
         for name in ('youtube/youtube-upload.sh', 'wix/wix-post.sh'):
             self.executable(self.project / name, mock)
@@ -59,9 +61,9 @@ os.execv(sys.executable, [sys.executable] + sys.argv[index + 1:])
         path.write_text('#!' + sys.executable + '\n' + content)
         path.chmod(0o755)
 
-    def run_start(self):
+    def run_start(self, entry_point='start.sh'):
         return subprocess.run(
-            ['bash', str(self.project / 'start.sh'), '-d', '20261018', '-f', str(self.media)],
+            ['bash', str(self.project / entry_point), '-d', '20261018', '-f', str(self.media)],
             cwd=self.directory, env=self.env, capture_output=True, text=True,
         )
 
@@ -96,6 +98,34 @@ os.execv(sys.executable, [sys.executable] + sys.argv[index + 1:])
                 result = self.run_start()
                 self.assertNotEqual(result.returncode, 0)
                 self.assertEqual(self.calls()[-1][0], stage)
+
+    def test_copy_entry_point_delegates_to_full_pipeline(self):
+        result = self.run_start('copy_and_start.sh')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        calls = self.calls()
+        self.assertEqual(calls[0], ['python3', str(self.project / 'copy_new_video.py'),
+                                    '--target-dir', str(self.media)])
+        self.assertEqual(calls[1], ['youtube-upload.sh', '--auth-only'])
+        self.assertEqual(calls[-1], ['wix-post.sh', '--date', '20261018', '--youtube',
+                                     'https://www.youtube.com/watch?v=test_video'])
+        self.assertIn(str(self.media / 'raw.mp4'), calls[-2])
+
+    def test_copy_script_uses_selected_destination_and_newest_video(self):
+        older = self.directory / 'older.mp4'
+        newer = self.directory / 'newer.MP4'
+        older.write_bytes(b'old sermon')
+        newer.write_bytes(b'new sermon')
+        with patch.object(sys, 'argv', ['copy_new_video.py', '--target-dir', str(self.media)]), \
+                patch('glob.glob', side_effect=[[str(older)], [str(newer)]]), \
+                patch('os.path.getctime', side_effect=lambda path: 2 if path == str(newer) else 1):
+            runpy.run_path(str(ROOT / 'copy_new_video.py'))
+        self.assertEqual((self.media / 'raw.mp4').read_bytes(), b'new sermon')
+
+    def test_copy_failure_stops_before_processing_or_uploading(self):
+        self.env['FAIL_STAGE'] = 'python3'
+        result = self.run_start('copy_and_start.sh')
+        self.assertEqual(result.returncode, 7)
+        self.assertEqual(len(self.calls()), 1)
 
     def test_auth_failure_stops_before_processing(self):
         self.env['FAIL_AUTH'] = '1'

@@ -1,9 +1,13 @@
 # Weekly Audio/Video handling
-1. save the video from zoom cloud to local disk
-2. use av tool to cut the sermon section and saved as `raw.mp4` to Windows' `Documents\sermons\`.
+1. Save the video from Zoom cloud to local disk.
+2. Cut the sermon section with an A/V tool. On the church laptop, save the trimmed
+   MP4 in `C:\Users\Worship\Videos` and make sure it is the newest MP4 there.
 3. Configure YouTube OAuth and Wix access using the guides below, set the sermon
    `title` and `speaker` in `.sermon.local.yaml`, and run `uv sync --locked`.
-4. Run `./start.sh` in WSL. It runs these steps in order and stops on any error:
+4. Run `./copy_and_start.sh` in WSL. It copies the newest `.mp4`/`.MP4` from
+   `/mnt/c/Users/Worship/Videos` into the sermon folder as `raw.mp4`, then calls
+   `start.sh`. A failed copy stops the pipeline. `start.sh` runs these steps in
+   order and stops on any error:
   * check YouTube authorization before processing: reuse/refresh the saved token,
     or prompt for sign-in if no token exists. If refresh fails, stop immediately;
     run `./youtube/youtube-upload.sh --auth-only --reauthorize` and then restart.
@@ -14,12 +18,15 @@
   * pass the returned YouTube URL to Wix and create a **draft** with the S3 download links.
 
 ```sh
-./start.sh -d 20261018 -f '/mnt/c/Users/YourName/Documents/sermons'
+./copy_and_start.sh -d 20261018 -f '/mnt/c/Users/Worship/Documents/sermons'
 ```
 
-The input must already be copied/trimmed to `raw.mp4` in the selected folder;
-this script does not download or copy from Zoom. It requires HandBrakeCLI,
-ffmpeg, the AWS CLI, and uv, plus configured service credentials.
+The copy source is the church laptop's local Videos folder, not Zoom directly.
+`-f` selects both the copy destination and the processing folder; by default it
+is the current Windows user's `Documents/sermons`. To skip copying when you
+already have `raw.mp4`, run `./start.sh` with the same options instead.
+The workflow requires Python 3, HandBrakeCLI, ffmpeg, the AWS CLI, and uv, plus
+configured service credentials.
 Review the YouTube video and make it unlisted/public before publishing the Wix
 draft. Upload completion does not mean YouTube has finished processing.
 
@@ -29,6 +36,8 @@ the date; do not delete them blindly. The YouTube result URL is printed before
 Wix runs and is also saved in `youtube/.uploads/YYYYMMDD.json`.
 
 ## Options
+
+Both `copy_and_start.sh` and `start.sh` accept these options.
 
 ### -d
 By default the `start.sh` will use *today*'s date which is our typical Sunday worship date for the video/audio file name as well as the path at S3. If we need to process some other dates, use the `-d` argument with *yyyyMMDD*. for example: `./start.sh -d 20220101`.
