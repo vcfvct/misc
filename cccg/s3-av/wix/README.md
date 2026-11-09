@@ -19,8 +19,10 @@ fields and uses the same Python environment.
 
 `./wix-post.sh` creates a **Wix Blog draft** independently of the compression/upload
 scripts. It requires Bash and [uv](https://docs.astral.sh/uv/getting-started/installation/).
-Python 3.8+ and PyYAML are managed by uv. `start.sh` is unchanged. Run the posting
-script after uploading the media and obtaining the YouTube URL.
+Python 3.8+ and PyYAML are managed by uv. The root `start.sh` now calls this script
+after compression, S3 uploads, and a private YouTube upload of `raw.mp4`, passing
+the YouTube URL automatically. For standalone use, run the posting script after
+uploading the media and obtaining the YouTube URL.
 
 Install shared dependencies from this directory (uv discovers the parent project;
 the same command also works from the project root, in fish or Bash):

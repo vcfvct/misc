@@ -199,9 +199,19 @@ class YouTubeUploadTests(unittest.TestCase):
             'token_uri': 'https://oauth2.googleapis.com/token',
         }}))
         self.args.no_browser = True
-        credentials = flow_class.from_client_config.return_value.run_local_server.return_value
+        local_server = flow_class.from_client_config.return_value.run_local_server
+        credentials = local_server.return_value
         credentials.to_json.return_value = '{"refresh_token": "test-token"}'
-        self.assertIs(yt.authenticate(self.args), credentials)
+
+        def authorize(**kwargs):
+            print('Authorize the intended YouTube channel: https://accounts.google.com/test')
+            return credentials
+
+        local_server.side_effect = authorize
+        with contextlib.redirect_stdout(io.StringIO()) as output, contextlib.redirect_stderr(io.StringIO()) as errors:
+            self.assertIs(yt.authenticate(self.args), credentials)
+        self.assertEqual(output.getvalue(), '')
+        self.assertIn('https://accounts.google.com/test', errors.getvalue())
         flow_class.from_client_config.assert_called_once()
         self.assertEqual(flow_class.from_client_config.call_args.args[1], yt.SCOPES)
         kwargs = flow_class.from_client_config.return_value.run_local_server.call_args.kwargs
